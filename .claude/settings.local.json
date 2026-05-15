@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pnpm install *)",
+      "Bash(npm install *)",
+      "Bash(npx pnpm *)",
+      "Bash(taskkill *)",
+      "Bash(git remote *)",
+      "Bash(git add *)",
+      "Bash(git commit -m 'chore: add node_modules to .gitignore *)",
+      "Bash(git push *)",
+      "Bash(Get-Process -Name git -ErrorAction SilentlyContinue)",
+      "Bash(Select-Object Id, ProcessName, CPU, StartTime)",
+      "Bash(ssh -T -p 443 git@ssh.github.com)",
+      "Bash(git config *)"
+    ]
+  }
+}
