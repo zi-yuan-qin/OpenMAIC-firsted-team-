@@ -34,9 +34,11 @@ import type {
   ModelConfig,
   ThinkingConfig,
 } from '@/lib/types/provider';
-import { applyModelMetadata, getCatalogThinkingCapability } from './model-metadata';
-import { getDefaultThinkingConfig, getThinkingMode, pickThinkingBudget } from './thinking-config';
 import { createLogger } from '@/lib/logger';
+import { applyModelMetadata, getCatalogThinkingCapability } from './model-metadata';
+import { getDefaultThinkingConfig } from './thinking-config';
+import { buildThinkingBodyParams } from './strategies/thinking-strategy';
+import { normalizeMiniMaxBaseUrl } from './adapters/minimax-adapter';
 // NOTE: Do NOT import thinking-context.ts here — it uses node:async_hooks
 // which is server-only, and this file is also used on the client via
 // settings.ts. The thinking context is read from globalThis instead
@@ -1044,6 +1046,10 @@ export interface ModelWithInfo {
   modelInfo: ModelInfo | null;
 }
 
+/**
+ * Build thinking body params using the strategy pattern.
+ * Delegates to lib/ai/strategies/thinking-strategy.ts
+ */
 function getCompatThinkingBodyParams(
   providerId: ProviderId,
   modelId: string,
@@ -1051,132 +1057,7 @@ function getCompatThinkingBodyParams(
 ): Record<string, unknown> | undefined {
   const capability = getCatalogThinkingCapability(providerId, modelId);
   if (!capability || capability.control === 'none') return undefined;
-
-  const mode = getThinkingMode(config);
-  const budget = pickThinkingBudget(capability, config);
-
-  switch (capability.requestAdapter) {
-    case 'kimi':
-    case 'glm':
-    case 'xiaomi':
-      if (mode === 'disabled') return { thinking: { type: 'disabled' } };
-      if (mode === 'enabled') return { thinking: { type: 'enabled' } };
-      return undefined;
-
-    case 'deepseek': {
-      if (mode === 'disabled' || config.effort === 'none') {
-        return { thinking: { type: 'disabled' } };
-      }
-
-      const effort = config.effort === 'max' || config.effort === 'xhigh' ? 'max' : 'high';
-      return {
-        thinking: { type: 'enabled' },
-        reasoning_effort: effort,
-      };
-    }
-
-    case 'qwen': {
-      if (mode === 'disabled') return { enable_thinking: false };
-      const body: Record<string, unknown> = {};
-      if (mode === 'enabled') body.enable_thinking = true;
-      if (budget !== undefined) body.thinking_budget = budget;
-      return Object.keys(body).length > 0 ? body : undefined;
-    }
-
-    case 'siliconflow': {
-      const body: Record<string, unknown> = {};
-      if (capability.control === 'toggle-budget') {
-        if (mode === 'disabled') body.enable_thinking = false;
-        if (mode === 'enabled') body.enable_thinking = true;
-      }
-      if (budget !== undefined) body.thinking_budget = budget;
-      return Object.keys(body).length > 0 ? body : undefined;
-    }
-
-    case 'doubao': {
-      if (capability.control === 'effort') {
-        const effort =
-          mode === 'disabled'
-            ? 'minimal'
-            : config.effort && capability.effortValues?.includes(config.effort)
-              ? config.effort
-              : mode === 'enabled'
-                ? capability.defaultEffort
-                : undefined;
-        return effort ? { reasoning_effort: effort } : undefined;
-      }
-      if (mode === 'auto') return { thinking: { type: 'auto' } };
-      if (mode === 'disabled') return { thinking: { type: 'disabled' } };
-      if (mode === 'enabled') return { thinking: { type: 'enabled' } };
-      return undefined;
-    }
-
-    case 'openrouter': {
-      const reasoning: Record<string, unknown> = {};
-      if (mode === 'disabled') reasoning.enabled = false;
-      if (mode === 'enabled') reasoning.enabled = true;
-      if (config.effort) reasoning.effort = config.effort;
-      if (budget !== undefined) reasoning.max_tokens = budget;
-      if (typeof config.excludeReasoningOutput === 'boolean') {
-        reasoning.exclude = config.excludeReasoningOutput;
-      }
-      return Object.keys(reasoning).length > 0 ? { reasoning } : undefined;
-    }
-
-    case 'hunyuan': {
-      let reasoningEffort: 'no_think' | 'low' | 'high' | undefined;
-      if (mode === 'disabled' || config.effort === 'none') {
-        reasoningEffort = 'no_think';
-      } else if (config.effort === 'high' || config.effort === 'max' || config.effort === 'xhigh') {
-        reasoningEffort = 'high';
-      } else if (
-        config.effort === 'low' ||
-        config.effort === 'medium' ||
-        config.effort === 'minimal'
-      ) {
-        reasoningEffort = 'low';
-      } else if (mode === 'enabled') {
-        reasoningEffort = capability.defaultEffort === 'high' ? 'high' : 'low';
-      }
-      return reasoningEffort
-        ? { chat_template_kwargs: { reasoning_effort: reasoningEffort } }
-        : undefined;
-    }
-
-    case 'lemonade': {
-      const chatTemplateKwargs: Record<string, unknown> = {};
-      if (mode === 'enabled') {
-        chatTemplateKwargs.enable_thinking = true;
-      } else {
-        chatTemplateKwargs.enable_thinking = false;
-      }
-      if (mode === 'enabled' && budget !== undefined) {
-        chatTemplateKwargs.thinking_budget = budget;
-      }
-      return { chat_template_kwargs: chatTemplateKwargs };
-    }
-
-    default:
-      return undefined;
-  }
-}
-
-function normalizeMiniMaxAnthropicBaseUrl(
-  providerId: ProviderId,
-  baseUrl?: string,
-): string | undefined {
-  if (providerId !== 'minimax' || !baseUrl) {
-    return baseUrl;
-  }
-
-  const trimmed = baseUrl.replace(/\/$/, '');
-  if (trimmed.endsWith('/anthropic/v1')) {
-    return trimmed;
-  }
-  if (trimmed.endsWith('/anthropic')) {
-    return `${trimmed}/v1`;
-  }
-  return `${trimmed}/anthropic/v1`;
+  return buildThinkingBodyParams(capability, config);
 }
 
 function shouldUseOpenAIResponsesApi(providerId: ProviderId, modelId: string): boolean {
@@ -1192,6 +1073,33 @@ function shouldUseOpenAIResponsesApi(providerId: ProviderId, modelId: string): b
 /** Returns true if the provider requires an API key (defaults to true for unknown providers). */
 export function isProviderKeyRequired(providerId: string): boolean {
   return getProviderConfig(providerId as ProviderId)?.requiresApiKey ?? true;
+}
+
+/**
+ * Build a proxy-enabled fetch function for Google API.
+ * Returns a function that lazily imports undici on first call.
+ */
+function buildGoogleProxyFetch(proxyUrl: string): typeof fetch {
+  let agent: unknown;
+  return ((input: RequestInfo | URL, init?: RequestInit) => {
+    return (async () => {
+      const { ProxyAgent, fetch: undiciFetch } = (await import(
+        /* webpackIgnore: true */ 'undici'
+      )) as {
+        ProxyAgent: new (proxyUrl: string) => unknown;
+        fetch: (
+          input: string | URL | Request,
+          init?: Record<string, unknown>,
+        ) => Promise<unknown>;
+      };
+      agent ??= new ProxyAgent(proxyUrl);
+      const response = await undiciFetch(input, {
+        ...(init as Record<string, unknown>),
+        dispatcher: agent,
+      });
+      return response as Response;
+    })();
+  }) as typeof fetch;
 }
 
 /**
@@ -1221,7 +1129,7 @@ export function getModel(config: ModelConfig): ModelWithInfo {
   const effectiveApiKey = config.apiKey || '';
 
   // Resolve base URL: explicit > provider default > SDK default
-  const effectiveBaseUrl = normalizeMiniMaxAnthropicBaseUrl(
+  const effectiveBaseUrl = normalizeMiniMaxBaseUrl(
     config.providerId,
     config.baseUrl || provider?.defaultBaseUrl || undefined,
   );
@@ -1330,25 +1238,7 @@ export function getModel(config: ModelConfig): ModelWithInfo {
         baseURL: effectiveBaseUrl,
       };
       if (config.proxy) {
-        const proxy = config.proxy;
-        let agent: unknown;
-        googleOptions.fetch = (async (input: RequestInfo | URL, init?: RequestInit) => {
-          const { ProxyAgent, fetch: undiciFetch } = (await import(
-            /* webpackIgnore: true */ 'undici'
-          )) as {
-            ProxyAgent: new (proxyUrl: string) => unknown;
-            fetch: (
-              input: string | URL | Request,
-              init?: Record<string, unknown>,
-            ) => Promise<unknown>;
-          };
-          agent ??= new ProxyAgent(proxy);
-          const response = await undiciFetch(input, {
-            ...(init as Record<string, unknown>),
-            dispatcher: agent,
-          });
-          return response as Response;
-        }) as typeof fetch;
+        googleOptions.fetch = buildGoogleProxyFetch(config.proxy);
       }
       const google = createGoogleGenerativeAI(googleOptions);
       model = google.chat(config.modelId);

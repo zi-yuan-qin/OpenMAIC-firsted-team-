@@ -9,11 +9,12 @@
  * Both online (streaming) and offline (playback) paths consume the same Action types.
  */
 
-// ==================== Base ====================
-
+/** Base interface for all action types. Every action has a unique ID. */
 export interface ActionBase {
   id: string;
+  /** Human-readable title (e.g., "Highlight the key formula") */
   title?: string;
+  /** Additional context for the action's purpose */
   description?: string;
 }
 

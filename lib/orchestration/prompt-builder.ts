@@ -11,6 +11,7 @@ import { getActionDescriptions, getEffectiveActions } from './tool-schemas';
 import { buildStateContext } from './summarizers/state-context';
 import { buildVirtualWhiteboardContext } from './summarizers/whiteboard-ledger';
 import { buildPeerContextSection } from './summarizers/peer-context';
+import { formatAgentMemory } from './agent-memory';
 import { buildPrompt, PROMPT_IDS } from '@/lib/prompts';
 
 // ==================== Role Guidelines ====================
@@ -127,6 +128,7 @@ export function buildStructuredPrompt(
   whiteboardLedger?: WhiteboardActionRecord[],
   userProfile?: { nickname?: string; bio?: string },
   agentResponses?: AgentTurnSummary[],
+  memory?: { recentTurns: Array<{ contentPreview: string; actionNames: string[] }>; keyFacts: string[] },
 ): string {
   // Determine current scene type for action filtering
   const currentScene = storeState.currentSceneId
@@ -155,6 +157,7 @@ export function buildStructuredPrompt(
     lengthGuidelines: buildLengthGuidelines(agentConfig.role),
     whiteboardGuidelines: buildWhiteboardGuidelines(agentConfig.role),
     discussionContextSection: buildDiscussionContextSection(discussionContext, agentResponses),
+    memorySection: memory ? formatAgentMemory(memory) : '',
   };
 
   const prompt = buildPrompt(PROMPT_IDS.AGENT_SYSTEM, vars);
