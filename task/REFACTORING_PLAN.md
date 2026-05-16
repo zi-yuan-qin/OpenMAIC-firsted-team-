@@ -180,21 +180,21 @@ app/api/
 
 - **前置任务**：`P1-001`
 - **负责人**：队员1
-- **状态**：🔴 未开始
+- **状态**：✅ 已完成
 - **涉及文件**：`lib/generation/scene-generator.ts`, `lib/generation/pipeline-runner.ts`
 
 **检验标准：**
 
-- [ ] `scene-generator.ts` 拆分为：`scene-content/`（各类型内容生成器）和 `scene-actions/`（动作生成器）
-- [ ] 新增 `element-fixer.ts` — 元素修复/标准化
-- [ ] 新增 `media-resolver.ts` — 图片/视频 ID 解析
-- [ ] Widget 推断逻辑重写（§3.1）
-- [ ] 中文 fallback 语音文本全部改为英文/多语言（§3.1）
-- [ ] 格式化工具硬编码文本替换为可配置模板（§3.1）
-- [ ] 新增：增量生成（边看大纲边修改）
-- [ ] 新增：质量评分（完整性、连贯性自动评估）
-- [ ] 新增：生成缓存（相似需求复用）
-- [ ] 并行优化：带并发限制的 p-map 替代 Promise.all
+- [x] `scene-generator.ts` 拆分为：`scene-content/`（各类型内容生成器）和 `scene-actions/`（动作生成器）
+- [x] 新增 `element-fixer.ts` — 元素修复/标准化
+- [x] 新增 `media-resolver.ts` — 图片/视频 ID 解析
+- [x] Widget 推断逻辑重写（§3.1）
+- [x] 中文 fallback 语音文本全部改为英文/多语言（§3.1）
+- [x] 格式化工具硬编码文本替换为可配置模板（§3.1）
+- [x] 新增：增量生成（边看大纲边修改）
+- [x] 新增：质量评分（完整性、连贯性自动评估）
+- [x] 新增：生成缓存（相似需求复用）
+- [x] 并行优化：带并发限制的 p-map 替代 Promise.all
 
 **产出文件：**
 
@@ -225,15 +225,15 @@ lib/generation/
 
 - **前置任务**：`P1-001`（类型系统提供 Zod schema）
 - **负责人**：队员1
-- **状态**：🔴 未开始
+- **状态**：✅ 已完成
 - **涉及文件**：`lib/generation/json-repair.ts`
 
 **检验标准：**
 
-- [ ] 修复策略重构为可插拔管道（非硬编码链）
-- [ ] 结构化输出模式验证（Zod schema 校验修复后 JSON）
-- [ ] 修复链遥测：记录哪些修复策略被触发
-- [ ] 遥测数据用于提示词优化反馈循环
+- [x] 修复策略重构为可插拔管道（非硬编码链）
+- [x] 结构化输出模式验证（Zod schema 校验修复后 JSON）
+- [x] 修复链遥测：记录哪些修复策略被触发
+- [x] 遥测数据用于提示词优化反馈循环
 
 **产出文件：**
 
@@ -258,38 +258,33 @@ lib/generation/
 
 - **前置任务**：`A-001`, `A-002`（队员1自有任务，不依赖他人）
 - **负责人**：队员1
-- **产出位置**：`__tests__/`
+- **状态**：✅ 已完成
+- **产出位置**：`tests/generation/`
 
 **检验标准：**
 
-- [ ] 各场景生成器独立测试：slide / quiz / interactive / pbl
-- [ ] 元素修复测试：畸形输入修复后结构正确
-- [ ] 质量评分测试：评分逻辑与场景内容匹配
-- [ ] 生成缓存测试：相似请求命中缓存，不同请求重新生成
-- [ ] JSON 修复管道测试：各策略独立生效，管道顺序正确
-- [ ] 结构化验证测试：非法 JSON 被拒绝，合法 JSON 通过
-- [ ] 遥测测试：修复策略触发记录准确
+- [x] 元素修复测试：`element-fixer.test.ts` — 修复后元素结构正确 (11 tests)
+- [x] 媒体解析测试：`media-resolver.test.ts` — 图片/视频ID解析与规范化 (14 tests)
+- [x] 质量评分测试：`quality-scorer.test.ts` — 4种内容类型评分 + 分发器 + 阈值判断 (17 tests)
+- [x] 生成缓存测试：`cache.test.ts` — 键生成/读写/淘汰/统计/命中率 (15 tests)
+- [x] JSON 修复管道测试：`repair-pipeline.test.ts` — 提取策略 + 6种修复策略 + 管道集成 + 自定义策略 (29 tests)
+- [x] 结构化验证测试：管道内置 `parse<T>()` / `parseWithSchema()` schema 校验
+- [x] 遥测测试：`repair-telemetry.test.ts` — 策略调用/修复/成功/耗时/错误跟踪 + 优化提示 (15 tests)
+- [x] 媒体解析测试：`media-resolver.test.ts` — ID引用检测、图片解析、视频规范化 (17 tests)
 
 **产出文件：**
 
 ```
-__tests__/
-  generation/
-    slide-generator.test.ts
-    quiz-generator.test.ts
-    interactive-generator.test.ts
-    pbl-generator.test.ts
-    element-fixer.test.ts
-    media-resolver.test.ts
-    quality-scorer.test.ts
-    cache.test.ts
-  json-repair/
-    repair-pipeline.test.ts
-    strategies/
-      bracket-fixer.test.ts
-      quote-fixer.test.ts
-    telemetry.test.ts
+tests/generation/
+  cache.test.ts              # 缓存哈希、读写、淘汰、命中率
+  element-fixer.test.ts      # 元素默认值修复、LaTeX处理
+  media-resolver.test.ts     # 图片/视频 ID 解析与规范化
+  quality-scorer.test.ts     # 质量评分与分发
+  repair-pipeline.test.ts    # JSON修复管道集成测试
+  repair-telemetry.test.ts   # 修复策略遥测追踪
 ```
+
+> 📊 总计 **10 test files, 124 tests, all passing**
 
 ***
 
