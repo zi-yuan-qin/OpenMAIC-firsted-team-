@@ -199,8 +199,10 @@ describe('scene-generator language directive threading (issue #472)', () => {
     it('threads languageDirective into widget content AND widget-teacher-actions prompts', async () => {
       const captured: string[] = [];
       // 1st call: widget HTML content; 2nd call: widget-teacher-actions JSON
-      const aiCall: AICallFn = async (_system, user) => {
-        captured.push(user);
+      // B-001 Phase 4: New single-file templates deliver content in system prompt,
+      // so we check the combined system + user content.
+      const aiCall: AICallFn = async (system, user) => {
+        captured.push(system + user);
         return captured.length === 1
           ? '<!DOCTYPE html><html><body>widget</body></html>'
           : JSON.stringify({ actions: [] });
@@ -217,10 +219,10 @@ describe('scene-generator language directive threading (issue #472)', () => {
       );
 
       expect(captured).toHaveLength(2);
-      for (const user of captured) {
-        expect(user).toContain(DIRECTIVE);
-        expect(user).not.toContain('{{languageDirective}}');
-        expect(user).not.toContain('{{language}}');
+      for (const combined of captured) {
+        expect(combined).toContain(DIRECTIVE);
+        expect(combined).not.toContain('{{languageDirective}}');
+        expect(combined).not.toContain('{{language}}');
       }
     });
   });
@@ -228,8 +230,10 @@ describe('scene-generator language directive threading (issue #472)', () => {
   describe('buildSceneFromOutline (high-level pipeline)', () => {
     it('threads languageDirective through content AND actions for a slide', async () => {
       const captured: string[] = [];
-      const aiCall: AICallFn = async (_system, user) => {
-        captured.push(user);
+      // B-001 Phase 4: New single-file templates deliver content in system prompt,
+      // so we check the combined system + user content.
+      const aiCall: AICallFn = async (system, user) => {
+        captured.push(system + user);
         // First call is content (expects JSON); second is actions (expects array)
         return captured.length === 1
           ? JSON.stringify({ elements: [], background: null, remark: '' })
@@ -252,9 +256,9 @@ describe('scene-generator language directive threading (issue #472)', () => {
       );
 
       expect(captured).toHaveLength(2);
-      for (const user of captured) {
-        expect(user).toContain(DIRECTIVE);
-        expect(user).not.toContain('{{languageDirective}}');
+      for (const combined of captured) {
+        expect(combined).toContain(DIRECTIVE);
+        expect(combined).not.toContain('{{languageDirective}}');
       }
     });
   });
