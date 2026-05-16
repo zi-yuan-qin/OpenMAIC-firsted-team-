@@ -1720,3 +1720,86 @@ export const useSettingsStore = create<SettingsState>()(
     },
   ),
 );
+
+// ================================================================
+// 预设系统
+// ================================================================
+
+export interface SettingsPreset {
+  name: string;
+  description: string;
+  settings: Partial<SettingsState>;
+}
+
+export const DEFAULT_PRESET: Readonly<SettingsPreset> = Object.freeze({
+  name: '默认',
+  description: '恢复所有设置为出厂默认值',
+  settings: {
+    providerId: 'openai' as ProviderId,
+    modelId: '',
+    agentMode: 'preset' as const,
+    autoAgentCount: 3,
+    ttsMuted: false,
+    ttsVolume: 1,
+    ttsEnabled: true,
+    asrEnabled: true,
+    sidebarCollapsed: true,
+    chatAreaCollapsed: true,
+    chatAreaWidth: 320,
+  },
+});
+
+export const DEMO_PRESET: Readonly<SettingsPreset> = Object.freeze({
+  name: '演示',
+  description: '关闭 TTS/ASR，展开侧边栏，适合屏幕共享',
+  settings: {
+    ttsMuted: true,
+    ttsEnabled: false,
+    asrEnabled: false,
+    sidebarCollapsed: false,
+    chatAreaCollapsed: true,
+    agentMode: 'preset' as const,
+    autoAgentCount: 3,
+  },
+});
+
+export const COLLAB_PRESET: Readonly<SettingsPreset> = Object.freeze({
+  name: '协作',
+  description: '展开聊天区、开启 TTS、Agent 自动模式',
+  settings: {
+    ttsMuted: false,
+    ttsEnabled: true,
+    asrEnabled: true,
+    sidebarCollapsed: true,
+    chatAreaCollapsed: false,
+    chatAreaWidth: 400,
+    agentMode: 'auto' as const,
+    autoAgentCount: 5,
+  },
+});
+
+export const ALL_PRESETS: ReadonlyArray<Readonly<SettingsPreset>> = Object.freeze([
+  DEFAULT_PRESET,
+  DEMO_PRESET,
+  COLLAB_PRESET,
+]);
+
+/** 应用预设 — 浅合并 preset.settings 到当前 store */
+export function applyPreset(preset: Readonly<SettingsPreset>): void {
+  useSettingsStore.setState(preset.settings as Partial<SettingsState>);
+}
+
+// ================================================================
+// 设置导入/导出
+// ================================================================
+
+/** 导出当前设置到 JSON 字符串 */
+export function exportSettings(): string {
+  return JSON.stringify(useSettingsStore.getState());
+}
+
+/** 从 JSON 字符串导入设置 */
+export function importSettings(json: string): void {
+  const parsed = JSON.parse(json) as Partial<SettingsState>;
+  useSettingsStore.setState(parsed);
+}
