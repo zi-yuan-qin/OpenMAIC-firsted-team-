@@ -163,9 +163,11 @@ export interface GeneratedAgentRecord {
   name: string;
   role: string; // 'teacher' | 'assistant' | 'student'
   persona: string;
+  personaType?: string; // Student archetype (curious/analytical/creative/note-taker)
   avatar: string;
   color: string;
   priority: number;
+  voiceConfig?: { providerId: string; voiceId: string }; // Per-agent TTS voice
   createdAt: number;
 }
 

@@ -90,7 +90,7 @@ export async function generateSceneOutlinesFromRequirements(
   const hasSourceImages = (pdfImages?.length ?? 0) > 0;
 
   // Use simplified prompt variables
-  const prompts = buildPrompt(PROMPT_IDS.REQUIREMENTS_TO_OUTLINES, {
+  const prompts = buildPrompt(PROMPT_IDS.OUTLINE, {
     // New simplified variables
     requirement: requirements.requirement,
     pdfContent: pdfText ? pdfText.substring(0, MAX_PDF_CONTENT_CHARS) : 'None',

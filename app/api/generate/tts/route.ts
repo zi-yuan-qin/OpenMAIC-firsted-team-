@@ -99,13 +99,24 @@ export async function POST(req: NextRequest) {
       `Generating TTS: provider=${ttsProviderId}, model=${ttsModelId || 'default'}, voice=${ttsVoice}, audioId=${audioId}, textLen=${text.length}`,
     );
 
-    // Generate audio
-    const { audio, format } = await generateTTS(config, text);
+    // Generate audio with retries (VoxCPM may be temporarily unreachable)
+    let lastError: unknown;
+    for (let attempt = 1; attempt <= 3; attempt++) {
+      try {
+        const { audio, format } = await generateTTS(config, text);
+        const base64 = Buffer.from(audio).toString('base64');
+        return apiSuccess({ audioId, base64, format });
+      } catch (error) {
+        lastError = error;
+        if (attempt < 3) {
+          log.warn(`TTS attempt ${attempt}/3 failed, retrying...`, error);
+          await new Promise((r) => setTimeout(r, 1000 * attempt));
+        }
+      }
+    }
 
-    // Convert to base64
-    const base64 = Buffer.from(audio).toString('base64');
-
-    return apiSuccess({ audioId, base64, format });
+    // All attempts failed
+    throw lastError;
   } catch (error) {
     log.error(
       `TTS generation failed [provider=${ttsProviderId ?? 'unknown'}, voice=${ttsVoice ?? 'unknown'}, audioId=${audioId ?? 'unknown'}]:`,

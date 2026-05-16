@@ -57,7 +57,7 @@ function baseOutline(overrides: Partial<SceneOutline> = {}): SceneOutline {
 describe('scene-generator language directive threading (issue #472)', () => {
   describe('content generation', () => {
     it('threads languageDirective into slide content prompt', async () => {
-      const { aiCall, lastUser } = makeCapturingAiCall(
+      const { aiCall, lastUser, lastSystem } = makeCapturingAiCall(
         JSON.stringify({ elements: [], background: null, remark: '' }),
       );
 
@@ -65,12 +65,14 @@ describe('scene-generator language directive threading (issue #472)', () => {
         languageDirective: DIRECTIVE,
       });
 
-      expect(lastUser()).toContain(DIRECTIVE);
-      expect(lastUser()).not.toContain('{{languageDirective}}');
+      // B-001 Phase 4: New single-file templates deliver content in system prompt
+      const combined = lastSystem() + lastUser();
+      expect(combined).toContain(DIRECTIVE);
+      expect(combined).not.toContain('{{languageDirective}}');
     });
 
     it('threads languageDirective into quiz content prompt', async () => {
-      const { aiCall, lastUser } = makeCapturingAiCall(JSON.stringify([]));
+      const { aiCall, lastSystem, lastUser } = makeCapturingAiCall(JSON.stringify([]));
 
       await generateSceneContent(
         baseOutline({
@@ -85,14 +87,15 @@ describe('scene-generator language directive threading (issue #472)', () => {
         { languageDirective: DIRECTIVE },
       );
 
-      expect(lastUser()).toContain(DIRECTIVE);
-      expect(lastUser()).not.toContain('{{languageDirective}}');
+      const combined = lastSystem() + lastUser();
+      expect(combined).toContain(DIRECTIVE);
+      expect(combined).not.toContain('{{languageDirective}}');
     });
   });
 
   describe('actions generation', () => {
     it('threads languageDirective into slide actions prompt', async () => {
-      const { aiCall, lastUser } = makeCapturingAiCall('[]');
+      const { aiCall, lastUser, lastSystem } = makeCapturingAiCall('[]');
       const content: GeneratedSlideContent = {
         elements: [
           {
@@ -116,12 +119,13 @@ describe('scene-generator language directive threading (issue #472)', () => {
         languageDirective: DIRECTIVE,
       });
 
-      expect(lastUser()).toContain(DIRECTIVE);
-      expect(lastUser()).not.toContain('{{languageDirective}}');
+      const combinedPrompt = lastSystem() + lastUser();
+      expect(combinedPrompt).toContain(DIRECTIVE);
+      expect(combinedPrompt).not.toContain('{{languageDirective}}');
     });
 
     it('threads languageDirective into quiz actions prompt', async () => {
-      const { aiCall, lastUser } = makeCapturingAiCall('[]');
+      const { aiCall, lastUser, lastSystem } = makeCapturingAiCall('[]');
       const content: GeneratedQuizContent = {
         questions: [
           {
@@ -139,12 +143,13 @@ describe('scene-generator language directive threading (issue #472)', () => {
         languageDirective: DIRECTIVE,
       });
 
-      expect(lastUser()).toContain(DIRECTIVE);
-      expect(lastUser()).not.toContain('{{languageDirective}}');
+      const combinedPrompt = lastSystem() + lastUser();
+      expect(combinedPrompt).toContain(DIRECTIVE);
+      expect(combinedPrompt).not.toContain('{{languageDirective}}');
     });
 
     it('threads languageDirective into interactive actions prompt', async () => {
-      const { aiCall, lastUser } = makeCapturingAiCall('[]');
+      const { aiCall, lastUser, lastSystem } = makeCapturingAiCall('[]');
       const content: GeneratedInteractiveContent = {
         html: '<div />',
         // No widgetType/teacherActions so we hit the normal actions path
@@ -154,12 +159,13 @@ describe('scene-generator language directive threading (issue #472)', () => {
         languageDirective: DIRECTIVE,
       });
 
-      expect(lastUser()).toContain(DIRECTIVE);
-      expect(lastUser()).not.toContain('{{languageDirective}}');
+      const combinedPrompt = lastSystem() + lastUser();
+      expect(combinedPrompt).toContain(DIRECTIVE);
+      expect(combinedPrompt).not.toContain('{{languageDirective}}');
     });
 
     it('threads languageDirective into pbl actions prompt', async () => {
-      const { aiCall, lastUser } = makeCapturingAiCall('[]');
+      const { aiCall, lastUser, lastSystem } = makeCapturingAiCall('[]');
       const content: GeneratedPBLContent = {
         projectConfig: {
           projectInfo: { title: 't', description: 'd' },
@@ -183,8 +189,9 @@ describe('scene-generator language directive threading (issue #472)', () => {
         { languageDirective: DIRECTIVE },
       );
 
-      expect(lastUser()).toContain(DIRECTIVE);
-      expect(lastUser()).not.toContain('{{languageDirective}}');
+      const combinedPrompt = lastSystem() + lastUser();
+      expect(combinedPrompt).toContain(DIRECTIVE);
+      expect(combinedPrompt).not.toContain('{{languageDirective}}');
     });
   });
 

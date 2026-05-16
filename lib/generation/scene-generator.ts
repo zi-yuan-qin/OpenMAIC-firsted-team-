@@ -256,6 +256,9 @@ export async function generateSceneContent(
 
 // ==================== Action Dispatcher ====================
 
+/**
+ * Step 3.2: Generate Actions based on content and script
+ */
 export async function generateSceneActions(
   outline: SceneOutline,
   content:
