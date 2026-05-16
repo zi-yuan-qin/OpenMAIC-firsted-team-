@@ -11,6 +11,7 @@ import { PROVIDERS } from './providers';
 import { thinkingContext } from './thinking-context';
 import { getModelMetadataKey } from './model-metadata';
 import type { ThinkingCapability, ThinkingConfig } from '@/lib/types/provider';
+import { getPerfMonitor } from '@/lib/monitoring/performance';
 import {
   getThinkingMode,
   pickThinkingBudget,
@@ -258,18 +259,31 @@ export async function callLLM<T extends GenerateTextParams>(
   let lastResult: GenerateTextResult<any, any> | undefined;
   let lastError: unknown;
 
+  // Resolve injected params once (thinking config is per-call stable)
+  const effectiveThinking = thinking ?? getGlobalThinkingConfig();
+  const injectedParams = injectProviderOptions(params, effectiveThinking);
+
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     try {
-      // Resolve effective thinking config: per-call > global env > undefined
-      const effectiveThinking = thinking ?? getGlobalThinkingConfig();
-      const injectedParams = injectProviderOptions(params, effectiveThinking);
 
       // Wrap in thinkingContext so the custom fetch wrapper in providers.ts
       // can read the config and inject vendor-specific body params for
       // OpenAI-compatible providers.
+      const startTime = performance.now();
       const result = await thinkingContext.run(effectiveThinking, () =>
         generateText(injectedParams),
       );
+      const durationMs = Math.round(performance.now() - startTime);
+
+      // Record performance metrics
+      getPerfMonitor().recordLLMCall({
+        model: getModelId(injectedParams),
+        source,
+        durationMs,
+        promptTokens: (result.usage as unknown as Record<string, number> | undefined)?.promptTokens,
+        completionTokens: (result.usage as unknown as Record<string, number> | undefined)?.completionTokens,
+        success: true,
+      });
 
       // Validate result (only when retries are configured)
       if (validate && !validate(result.text)) {
@@ -283,6 +297,14 @@ export async function callLLM<T extends GenerateTextParams>(
       return result;
     } catch (error) {
       lastError = error;
+
+      // Record failed call
+      getPerfMonitor().recordLLMCall({
+        model: getModelId(injectedParams),
+        source,
+        durationMs: 0,
+        success: false,
+      });
 
       if (attempt < maxAttempts) {
         log.warn(`[${source}] Call failed (attempt ${attempt}/${maxAttempts}), retrying...`, error);

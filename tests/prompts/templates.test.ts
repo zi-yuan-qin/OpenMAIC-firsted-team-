@@ -121,7 +121,7 @@ describe('role dispatch', () => {
     const studentAgent: AgentConfig = { ...baseAgent, role: 'student' };
     const out = buildStructuredPrompt(studentAgent, slideState);
     expect(out).not.toContain('Lead Teacher');
-    expect(out).toContain('STUDENT');
+    expect(out).toContain('Student Role');
   });
 
   test('assistant prompt loads from roles/assistant.md (contains Teaching Assistant)', () => {
@@ -146,8 +146,9 @@ describe('role dispatch', () => {
   test('student role includes length constraint', () => {
     const studentAgent: AgentConfig = { ...baseAgent, role: 'student' };
     const out = buildStructuredPrompt(studentAgent, slideState);
-    // Student role content from roles/student.md (fallback to LEGACY_ROLE_GUIDELINES)
-    expect(out).toContain('STUDENT');
+    // Student role content from roles/student.md
+    expect(out).toContain('Student Role');
+    expect(out).toMatch(/characters|SHORT/);
   });
 });
 
@@ -303,8 +304,8 @@ describe('role content is loaded from modular templates', () => {
   test('student prompt is valid and contains structured content', () => {
     const studentAgent: AgentConfig = { ...baseAgent, role: 'student' };
     const out = buildStructuredPrompt(studentAgent, slideState);
-    // Student role loads from legacy fallback (no roles/student.md yet)
-    expect(out).toContain('STUDENT');
+    // Student role loads from roles/student.md
+    expect(out).toContain('Student Role');
     expect(out.length).toBeGreaterThan(100);
   });
 });

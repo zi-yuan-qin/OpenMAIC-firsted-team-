@@ -734,7 +734,7 @@ async function generateSlideContent(
 
   const teacherContext = formatTeacherPersonaForPrompt(agents);
 
-  const prompts = buildPrompt(PROMPT_IDS.SLIDE_CONTENT, {
+  const prompts = buildPrompt(PROMPT_IDS.SLIDE_CONTENT_V2, {
     title: outline.title,
     description: outline.description,
     keyPoints: (outline.keyPoints || []).map((p, i) => `${i + 1}. ${p}`).join('\n'),
@@ -850,7 +850,7 @@ async function generateQuizContent(
     questionTypes: ['single'],
   };
 
-  const prompts = buildPrompt(PROMPT_IDS.QUIZ_CONTENT, {
+  const prompts = buildPrompt(PROMPT_IDS.QUIZ, {
     title: outline.title,
     description: outline.description,
     keyPoints: (outline.keyPoints || []).map((p, i) => `${i + 1}. ${p}`).join('\n'),
@@ -1183,7 +1183,7 @@ async function generateWidgetTeacherActions(
   aiCall: AICallFn,
   languageDirective?: string,
 ): Promise<TeacherAction[] | undefined> {
-  const prompts = buildPrompt(PROMPT_IDS.WIDGET_TEACHER_ACTIONS, {
+  const prompts = buildPrompt(PROMPT_IDS.WIDGET_TEACHER_ACTIONS_V2, {
     widgetType,
     description: outline.description,
     keyPoints: (outline.keyPoints || []).join('\n'),
@@ -1240,7 +1240,7 @@ export async function generateSceneActions(
     // Format element list for AI to select from
     const elementsText = formatElementsForPrompt(content.elements);
 
-    const prompts = buildPrompt(PROMPT_IDS.SLIDE_ACTIONS, {
+    const prompts = buildPrompt(PROMPT_IDS.SLIDE_ACTIONS_V2, {
       title: outline.title,
       keyPoints: (outline.keyPoints || []).map((p, i) => `${i + 1}. ${p}`).join('\n'),
       description: outline.description,
@@ -1270,7 +1270,7 @@ export async function generateSceneActions(
     // Format question list for AI reference
     const questionsText = formatQuestionsForPrompt(content.questions);
 
-    const prompts = buildPrompt(PROMPT_IDS.QUIZ_ACTIONS, {
+    const prompts = buildPrompt(PROMPT_IDS.QUIZ_ACTIONS_V2, {
       title: outline.title,
       keyPoints: (outline.keyPoints || []).map((p, i) => `${i + 1}. ${p}`).join('\n'),
       description: outline.description,
@@ -1297,7 +1297,7 @@ export async function generateSceneActions(
   if (outline.type === 'interactive' && 'html' in content) {
     const config = outline.interactiveConfig;
     const agentsText = formatAgentsForPrompt(agents);
-    const prompts = buildPrompt(PROMPT_IDS.INTERACTIVE_ACTIONS, {
+    const prompts = buildPrompt(PROMPT_IDS.INTERACTIVE_ACTIONS_V2, {
       title: outline.title,
       keyPoints: (outline.keyPoints || []).map((p, i) => `${i + 1}. ${p}`).join('\n'),
       description: outline.description,
@@ -1325,7 +1325,7 @@ export async function generateSceneActions(
   if (outline.type === 'pbl' && 'projectConfig' in content) {
     const pblConfig = outline.pblConfig;
     const agentsText = formatAgentsForPrompt(agents);
-    const prompts = buildPrompt(PROMPT_IDS.PBL_ACTIONS, {
+    const prompts = buildPrompt(PROMPT_IDS.PBL_ACTIONS_V2, {
       title: outline.title,
       keyPoints: (outline.keyPoints || []).map((p, i) => `${i + 1}. ${p}`).join('\n'),
       description: outline.description,

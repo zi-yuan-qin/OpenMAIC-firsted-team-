@@ -71,6 +71,7 @@ export {
 // ═══════════════════════════════════════════════════════════════
 
 export const PROMPT_IDS = {
+  // Legacy templates
   REQUIREMENTS_TO_OUTLINES: 'requirements-to-outlines',
   INTERACTIVE_OUTLINES: 'interactive-outlines',
   WEB_SEARCH_QUERY_REWRITE: 'web-search-query-rewrite',
@@ -92,4 +93,17 @@ export const PROMPT_IDS = {
   AGENT_SYSTEM_WB_STUDENT: 'agent-system-wb-student',
   DIRECTOR: 'director',
   PBL_DESIGN: 'pbl-design',
+  // New modular generators (Phase 3+)
+  OUTLINE: 'generators/outline',
+  INTERACTIVE_OUTLINES_V2: 'generators/interactive-outlines',
+  SLIDE_CONTENT_V2: 'generators/slide-content',
+  SLIDE_ACTIONS_V2: 'generators/slide-actions',
+  QUIZ: 'generators/quiz',
+  QUIZ_ACTIONS_V2: 'generators/quiz-actions',
+  WIDGET_TEACHER_ACTIONS_V2: 'generators/widget-teacher-actions',
+  INTERACTIVE_ACTIONS_V2: 'generators/interactive-actions',
+  PBL_DESIGN_V2: 'generators/pbl-design',
+  PBL_ACTIONS_V2: 'generators/pbl-actions',
+  WEB_SEARCH_QUERY_REWRITE_V2: 'generators/web-search-query-rewrite',
+  AGENT_PROFILES: 'generators/agent-profiles',
 } as const satisfies Record<string, PromptId>;

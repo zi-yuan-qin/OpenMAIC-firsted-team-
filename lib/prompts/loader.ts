@@ -175,7 +175,34 @@ export function loadPrompt(promptId: PromptId): LoadedPrompt | null {
     }
   }
 
-  const promptDir = path.join(getPromptsDir(), 'templates', promptId);
+  const promptsDir = getPromptsDir();
+
+  // Phase 4: Support new generators/{id}.md single-file format
+  if (promptId.startsWith('generators/')) {
+    const filename = promptId.replace('generators/', '');
+    const genPath = path.join(promptsDir, 'generators', `${filename}.md`);
+    try {
+      let systemPrompt = fs.readFileSync(genPath, 'utf-8').trim();
+      systemPrompt = processSnippets(systemPrompt);
+
+      const result: LoadedPrompt = {
+        id: promptId,
+        systemPrompt,
+        userPromptTemplate: '',
+      };
+
+      if (cacheTTL > 0) {
+        cache.set(promptId, { data: result, loadedAt: Date.now() });
+      }
+      return result;
+    } catch (error) {
+      log.error(`Failed to load generator ${promptId}:`, error);
+      return null;
+    }
+  }
+
+  // Legacy: templates/{promptId}/system.md + user.md
+  const promptDir = path.join(promptsDir, 'templates', promptId);
 
   try {
     // Load system.md

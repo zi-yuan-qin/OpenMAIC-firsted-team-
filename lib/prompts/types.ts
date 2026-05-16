@@ -141,7 +141,7 @@ export interface IVersionManager {
  * during the phased migration from templates/ to the new structure.
  */
 export type PromptId =
-  // Generation pipeline
+  // Generation pipeline (legacy)
   | 'requirements-to-outlines'
   | 'interactive-outlines'
   | 'web-search-query-rewrite'
@@ -157,13 +157,26 @@ export type PromptId =
   | 'visualization3d-content'
   | 'widget-teacher-actions'
   | 'pbl-actions'
-  // Orchestration
+  // Orchestration (legacy)
   | 'agent-system'
   | 'agent-system-wb-teacher'
   | 'agent-system-wb-assistant'
   | 'agent-system-wb-student'
   | 'director'
-  | 'pbl-design';
+  | 'pbl-design'
+  // New modular generators (Phase 3+)
+  | 'generators/outline'
+  | 'generators/interactive-outlines'
+  | 'generators/slide-content'
+  | 'generators/slide-actions'
+  | 'generators/quiz'
+  | 'generators/quiz-actions'
+  | 'generators/widget-teacher-actions'
+  | 'generators/interactive-actions'
+  | 'generators/pbl-design'
+  | 'generators/pbl-actions'
+  | 'generators/web-search-query-rewrite'
+  | 'generators/agent-profiles';
 
 /**
  * Legacy snippet identifier — kept for backward compatibility.

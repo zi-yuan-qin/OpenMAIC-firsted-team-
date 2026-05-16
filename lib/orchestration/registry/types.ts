@@ -32,6 +32,7 @@ export interface AgentTemplate {
   name: string;
   role: string;
   persona: string;
+  personaType?: string; // Student archetype: "curious", "analytical", "creative", "note-taker"
   avatar: string;
   color: string;
   allowedActions: string[];

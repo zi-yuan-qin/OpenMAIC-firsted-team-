@@ -199,11 +199,12 @@ describe('role loading integration', () => {
     expect(out).not.toContain('Lead Teacher');
   });
 
-  test('buildStructuredPrompt with student role falls back to legacy', () => {
-    // No roles/student.md exists, so legacy fallback is used
+  test('buildStructuredPrompt with student role uses roles/student.md', () => {
+    // B-002: roles/student.md now exists — uses the new template
     const student: AgentConfig = { ...baseAgent, role: 'student' };
     const out = buildStructuredPrompt(student, slideStoreState);
-    expect(out).toContain('STUDENT');
+    expect(out).toContain('Student Role');
+    expect(out).toContain('participate actively');
     expect(out.length).toBeGreaterThan(100);
   });
 

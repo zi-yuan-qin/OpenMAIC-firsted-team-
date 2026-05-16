@@ -1269,42 +1269,62 @@ export function getModel(config: ModelConfig): ModelWithInfo {
           }
           const response = await globalThis.fetch(url, init);
 
-          if (providerId !== 'lemonade') {
-            return response;
-          }
-
-          const contentType = response.headers.get('content-type') || '';
+          // For non-streaming OpenAI-compatible providers, strip non-standard
+          // fields (e.g. reasoning_content) from the response body that would
+          // cause the @ai-sdk/openai Chat Completion schema validation to fail.
           let isStreamingRequest = false;
           if (init?.body && typeof init.body === 'string') {
             try {
-              const requestBody = JSON.parse(init.body);
-              isStreamingRequest = requestBody?.stream === true;
+              isStreamingRequest = JSON.parse(init.body)?.stream === true;
             } catch {
-              /* ignore request-body inspection failure */
+              /* ignore */
             }
           }
 
           if (isStreamingRequest) {
+            // Streaming: pass through (SSE parser handles chunk-level validation)
             return response;
           }
 
+          // Non-streaming: transform response to strip incompatible fields
           try {
             const cloned = response.clone();
             const text = await cloned.text();
+            const parsed = JSON.parse(text);
 
-            try {
-              JSON.parse(text);
-            } catch (error) {
-              const message = error instanceof Error ? error.message : String(error);
-              log.warn(
-                `[Lemonade] Invalid JSON response from OpenAI-compatible path: status=${response.status}, contentType=${contentType || 'n/a'}, bodyLen=${text.length}, first=${JSON.stringify(text.slice(0, 500))}, last=${JSON.stringify(text.slice(Math.max(0, text.length - 500)))}, parseError=${message}`,
-              );
+            // Strip reasoning_content from choices (DeepSeek thinking)
+            if (parsed.choices && Array.isArray(parsed.choices)) {
+              for (const choice of parsed.choices) {
+                if (choice.message && typeof choice.message === 'object') {
+                  delete (choice.message as Record<string, unknown>).reasoning_content;
+                  delete (choice.message as Record<string, unknown>).reasoning;
+                }
+              }
             }
-          } catch (error) {
-            log.warn('[Lemonade] Failed to inspect JSON response body:', error);
-          }
 
-          return response;
+            // Strip top-level non-standard fields
+            delete parsed.reasoning_content;
+            delete parsed.reasoning;
+
+            // Strip non-standard usage fields
+            if (parsed.usage && typeof parsed.usage === 'object') {
+              const usage = parsed.usage as Record<string, unknown>;
+              if (usage.completion_tokens_details && typeof usage.completion_tokens_details === 'object') {
+                delete (usage.completion_tokens_details as Record<string, unknown>).reasoning_tokens;
+              }
+              delete usage.prompt_cache_hit_tokens;
+              delete usage.prompt_cache_miss_tokens;
+            }
+
+            return new Response(JSON.stringify(parsed), {
+              status: response.status,
+              statusText: response.statusText,
+              headers: response.headers,
+            });
+          } catch {
+            // If transformation fails (e.g. non-JSON body), return original
+            return response;
+          }
         };
       }
 
