@@ -5,7 +5,11 @@
  * Also handles legacy interactiveConfig backward compatibility.
  */
 
-import type { SceneOutline, GeneratedInteractiveContent, WidgetOutline } from '@/lib/types/generation';
+import type {
+  SceneOutline,
+  GeneratedInteractiveContent,
+  WidgetOutline,
+} from '@/lib/types/generation';
 import type { WidgetType, WidgetConfig, TeacherAction } from '@/lib/types/widgets';
 import type { PromptId } from '@/lib/prompts/types';
 import type { AICallFn } from '../pipeline-types';
@@ -52,7 +56,11 @@ interface KeywordPattern {
 
 const WIDGET_KEYWORD_MAP: Record<WidgetType, KeywordPattern[]> = {
   simulation: [
-    { regex: /physics|chemistry|mechanics|electromagnetic|thermodynamic|quantum|relativity|astronomy/i, weight: 4 },
+    {
+      regex:
+        /physics|chemistry|mechanics|electromagnetic|thermodynamic|quantum|relativity|astronomy/i,
+      weight: 4,
+    },
     { regex: /force|motion|equilibrium|wave|circuit|gravity|friction|momentum|energy/i, weight: 3 },
     { regex: /reaction|catalyst|molecule|atom|particle|oscillation|collision/i, weight: 3 },
     { regex: /simulate|simulation|experiment|phenomenon|lab(oratory)?|model/i, weight: 2 },
@@ -105,9 +113,7 @@ function inferWidgetType(subject: string, concept: string, designIdea: string): 
     }
   }
 
-  log.debug(
-    `Widget inference: "${subject.substring(0, 50)}" → ${bestType} (score: ${bestScore})`,
-  );
+  log.debug(`Widget inference: "${subject.substring(0, 50)}" → ${bestType} (score: ${bestScore})`);
 
   return bestType;
 }

@@ -31,13 +31,16 @@ export class RepairPipeline {
   private repairStrategies: RepairStrategy[];
   private config: PipelineConfig;
 
-  constructor(config?: PipelineConfig & {
-    extraction?: ExtractionStrategy[];
-    repair?: RepairStrategy[];
-  }) {
+  constructor(
+    config?: PipelineConfig & {
+      extraction?: ExtractionStrategy[];
+      repair?: RepairStrategy[];
+    },
+  ) {
     this.extractionStrategies = config?.extraction ?? [...DEFAULT_EXTRACTION_STRATEGIES];
-    this.repairStrategies = (config?.repair ?? [...DEFAULT_REPAIR_STRATEGIES])
-      .sort((a, b) => a.priority - b.priority);
+    this.repairStrategies = (config?.repair ?? [...DEFAULT_REPAIR_STRATEGIES]).sort(
+      (a, b) => a.priority - b.priority,
+    );
     this.config = { maxRepairPasses: 10, ...config };
   }
 
@@ -92,9 +95,7 @@ export class RepairPipeline {
       return {
         ...result,
         success: false,
-        zodErrors: zodResult.error.issues.map(
-          (e) => `${String(e.path.join('.'))}: ${e.message}`,
-        ),
+        zodErrors: zodResult.error.issues.map((e) => `${String(e.path.join('.'))}: ${e.message}`),
       };
     }
 

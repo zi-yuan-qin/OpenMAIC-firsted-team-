@@ -73,7 +73,7 @@ export function scoreSlideContent(
     // Reward having multiple types AND a reasonable element count
     const typeRatio = uniqueCount / 6; // 6 = max reasonable unique types
     const countScore = Math.min(totalCount / 8, 1); // 8+ elements = full score
-    elementDiversity = clamp((typeRatio * 0.6 + countScore * 0.4));
+    elementDiversity = clamp(typeRatio * 0.6 + countScore * 0.4);
     if (uniqueCount <= 1 && totalCount > 1) {
       warnings.push('All elements are the same type — consider mixing text, images, shapes');
     }
@@ -110,8 +110,7 @@ export function scoreSlideContent(
     // Check for zero-size elements (line elements have start/end instead)
     const zeroSize = elements.filter((e) => {
       const el = e as unknown as Record<string, unknown>;
-      return ('width' in el && el.width === 0)
-          || ('height' in el && el.height === 0);
+      return ('width' in el && el.width === 0) || ('height' in el && el.height === 0);
     });
     if (zeroSize.length > 0) {
       issues.push(`${zeroSize.length} elements have zero width or height`);
@@ -158,7 +157,7 @@ export function scoreQuizContent(
       if (!q.answer || q.answer.length === 0) {
         missingAnswers++;
       }
-      totalOptions += (q.options?.length || 0);
+      totalOptions += q.options?.length || 0;
     }
     if (missingAnswers > 0) {
       issues.push(`${missingAnswers}/${questions.length} questions missing correct answer`);
@@ -167,9 +166,10 @@ export function scoreQuizContent(
   }
   coherence = clamp(coherence);
 
-  const elementDiversity = questions && questions.length > 0
-    ? clamp(Math.min(totalOptions / (questions.length * 4), 1))
-    : 0;
+  const elementDiversity =
+    questions && questions.length > 0
+      ? clamp(Math.min(totalOptions / (questions.length * 4), 1))
+      : 0;
 
   const overall = weightedAverage([
     [completeness, 0.4],

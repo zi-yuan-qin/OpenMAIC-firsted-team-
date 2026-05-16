@@ -22,7 +22,7 @@ describe('scoreSlideContent', () => {
         { id: 's1', type: 'shape', left: 100, top: 150, width: 200, height: 200, fill: '#5b9bd5' },
         { id: 'img1', type: 'image', left: 400, top: 150, width: 300, height: 200, src: 'img_1' },
       ] as GeneratedSlideContent['elements'],
-      background: { color: '#ffffff' },
+      background: { type: 'solid', color: '#ffffff' },
       remark: 'This slide introduces the topic with a diagram and supporting image.',
     };
 
@@ -37,7 +37,7 @@ describe('scoreSlideContent', () => {
   it('flags empty elements', () => {
     const content: GeneratedSlideContent = {
       elements: [],
-      background: { color: '#fff' },
+      background: { type: 'solid', color: '#fff' },
       remark: 'Some remark text for the slide content',
     };
 
@@ -48,8 +48,10 @@ describe('scoreSlideContent', () => {
 
   it('flags missing or short remark', () => {
     const content: GeneratedSlideContent = {
-      elements: [{ id: 't1', type: 'text', left: 80, top: 50, width: 840, height: 80, content: 'Hi' }] as GeneratedSlideContent['elements'],
-      background: { color: '#fff' },
+      elements: [
+        { id: 't1', type: 'text', left: 80, top: 50, width: 840, height: 80, content: 'Hi' },
+      ] as GeneratedSlideContent['elements'],
+      background: { type: 'solid', color: '#fff' },
       remark: '',
     };
 
@@ -63,7 +65,7 @@ describe('scoreSlideContent', () => {
         { id: 't1', type: 'text', left: -200, top: 50, width: 100, height: 50, content: 'Off' },
         { id: 't2', type: 'text', left: 1200, top: 50, width: 100, height: 50, content: 'Far' },
       ] as GeneratedSlideContent['elements'],
-      background: { color: '#fff' },
+      background: { type: 'solid', color: '#fff' },
       remark: 'Off-canvas test slide content for verification',
     };
 
@@ -73,19 +75,23 @@ describe('scoreSlideContent', () => {
   });
 
   it('flags elements with nearly identical positions as overlapping', () => {
-    const elements: GeneratedSlideContent['elements'] = [];
-    for (let i = 0; i < 4; i++) {
-      elements.push({ id: `e${i}`, type: 'text', left: 100, top: 100, width: 50, height: 50, content: `Item ${i}` } as GeneratedSlideContent['elements'][0]);
-    }
+    const elements = Array.from({ length: 4 }, (_, i) => ({
+      id: `e${i}`,
+      type: 'text' as const,
+      left: 100,
+      top: 100,
+      width: 50,
+      height: 50,
+      content: `Item ${i}`,
+    }));
 
     const content: GeneratedSlideContent = {
-      elements,
-      background: { color: '#fff' },
+      elements: elements as GeneratedSlideContent['elements'],
+      background: { type: 'solid', color: '#fff' },
       remark: 'Overlapping elements test slide content here',
     };
 
     const score = scoreSlideContent(content);
-    // 4 elements at same position → C(4,2) = 6 overlapping pairs
     expect(score.coherence).toBeLessThan(0.8);
     expect(score.issues.some((i) => i.includes('identical positions'))).toBe(true);
   });
@@ -99,19 +105,25 @@ describe('scoreQuizContent', () => {
           id: 'q1',
           question: 'What is 2+2?',
           type: 'single',
-          options: ['3', '4', '5', '6'],
-          answer: ['4'],
-          difficulty: 'easy',
-          explanation: 'Basic arithmetic',
+          options: [
+            { label: '3', value: 'A' },
+            { label: '4', value: 'B' },
+            { label: '5', value: 'C' },
+            { label: '6', value: 'D' },
+          ],
+          answer: ['B'],
         },
         {
           id: 'q2',
           question: 'Which are prime?',
           type: 'multiple',
-          options: ['2', '3', '4', '5'],
-          answer: ['2', '3', '5'],
-          difficulty: 'medium',
-          explanation: 'Prime numbers',
+          options: [
+            { label: '2', value: 'A' },
+            { label: '3', value: 'B' },
+            { label: '4', value: 'C' },
+            { label: '5', value: 'D' },
+          ],
+          answer: ['A', 'B', 'D'],
         },
       ],
     };
@@ -137,10 +149,8 @@ describe('scoreQuizContent', () => {
           id: 'q1',
           question: 'True or false?',
           type: 'single',
-          options: ['True'],
-          answer: ['True'],
-          difficulty: 'easy',
-          explanation: '',
+          options: [{ label: 'True', value: 'A' }],
+          answer: ['A'],
         },
       ],
     };
@@ -156,11 +166,12 @@ describe('scoreQuizContent', () => {
         {
           id: 'q1',
           question: 'Test question with no answer',
-          type: 'text',
-          options: ['a', 'b'],
+          type: 'short_answer',
+          options: [
+            { label: 'a', value: 'A' },
+            { label: 'b', value: 'B' },
+          ],
           answer: [],
-          difficulty: 'easy',
-          explanation: '',
         },
       ],
     };
@@ -176,8 +187,13 @@ describe('scoreInteractiveContent', () => {
     const content: GeneratedInteractiveContent = {
       html: '<!DOCTYPE html><html><head></head><body><div id="app">Simulation widget with interactive controls and detailed content</div></body></html>',
       widgetType: 'simulation',
-      widgetConfig: { variables: [] },
-      teacherActions: [{ action: 'explain', timing: 'start' }],
+      widgetConfig: {
+        type: 'simulation' as const,
+        concept: 'physics',
+        description: 'A simulation of gravity',
+        variables: [],
+      },
+      teacherActions: [{ id: 'a1', type: 'speech' as const, content: 'Welcome' }],
     };
 
     const score = scoreInteractiveContent(content);
@@ -189,7 +205,12 @@ describe('scoreInteractiveContent', () => {
     const content: GeneratedInteractiveContent = {
       html: '<p>short</p>',
       widgetType: 'game',
-      widgetConfig: {},
+      widgetConfig: {
+        type: 'game' as const,
+        gameType: 'quiz' as const,
+        description: 'A test game',
+        scoring: { correctPoints: 10 },
+      },
       teacherActions: [],
     };
 
@@ -199,10 +220,10 @@ describe('scoreInteractiveContent', () => {
   });
 
   it('flags missing widget config', () => {
-    const content: GeneratedInteractiveContent = {
+    const content = {
       html: '<!DOCTYPE html><html><head></head><body>Long enough content for the interactive widget test validation</body></html>',
-    };
-    // @ts-expect-error — deliberately missing fields
+    } as GeneratedInteractiveContent;
+
     const score = scoreInteractiveContent(content);
 
     expect(score.warnings.some((w) => w.includes('widgetType'))).toBe(true);
@@ -216,10 +237,37 @@ describe('scorePBLContent', () => {
       projectConfig: {
         projectInfo: { title: 'Build a Bridge', description: 'Engineering challenge' },
         agents: [
-          { id: 'a1', name: 'Engineer', role: 'specialist', persona: 'Structural expert' },
-          { id: 'a2', name: 'PM', role: 'coordinator', persona: 'Project lead' },
-        ] as GeneratedPBLContent['projectConfig']['agents'],
-        issueboard: { columns: [] } as GeneratedPBLContent['projectConfig']['issueboard'],
+          {
+            name: 'Engineer',
+            actor_role: 'specialist',
+            role_division: 'development' as const,
+            system_prompt: 'You are an engineer',
+            default_mode: 'chat',
+            delay_time: 0,
+            env: {},
+            is_user_role: false,
+            is_active: true,
+            is_system_agent: false,
+          },
+          {
+            name: 'PM',
+            actor_role: 'coordinator',
+            role_division: 'management' as const,
+            system_prompt: 'You are a PM',
+            default_mode: 'chat',
+            delay_time: 0,
+            env: {},
+            is_user_role: false,
+            is_active: true,
+            is_system_agent: false,
+          },
+        ],
+        issueboard: {
+          agent_ids: ['Engineer', 'PM'],
+          issues: [],
+          current_issue_id: null,
+        },
+        chat: { messages: [] },
       },
     };
 
@@ -237,7 +285,7 @@ describe('scorePBLContent', () => {
   });
 
   it('flags missing agents', () => {
-    const content: GeneratedPBLContent = {
+    const content = {
       projectConfig: {
         projectInfo: { title: 'Solo Project', description: '' },
         agents: [],
@@ -253,7 +301,7 @@ describe('scoreContent (dispatcher)', () => {
   it('routes to slide scorer for slide type', () => {
     const content: GeneratedSlideContent = {
       elements: [],
-      background: { color: '#fff' },
+      background: { type: 'solid', color: '#fff' },
       remark: 'Test remark text',
     };
     const score = scoreContent({ type: 'slide', content });

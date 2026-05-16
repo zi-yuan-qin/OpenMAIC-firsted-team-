@@ -1,8 +1,5 @@
 import { describe, expect, it, beforeEach } from 'vitest';
-import {
-  repairTelemetry,
-  annotateWithTelemetry,
-} from '@/lib/generation/repair-telemetry';
+import { repairTelemetry, annotateWithTelemetry } from '@/lib/generation/repair-telemetry';
 import { RepairPipeline } from '@/lib/generation/repair-pipeline';
 
 describe('repairTelemetry', () => {
@@ -62,7 +59,10 @@ describe('repairTelemetry', () => {
   describe('error recording', () => {
     it('stores recent errors with truncation', () => {
       for (let i = 0; i < 15; i++) {
-        repairTelemetry.recordError('jsonrepair-fixer', `Error number ${i}: something went wrong with the JSON repair`);
+        repairTelemetry.recordError(
+          'jsonrepair-fixer',
+          `Error number ${i}: something went wrong with the JSON repair`,
+        );
       }
 
       const snap = repairTelemetry.snapshot();

@@ -112,6 +112,8 @@ export const repairTelemetry = new RepairTelemetry();
 /**
  * Annotate a ParseResult with telemetry data for debugging.
  */
-export function annotateWithTelemetry<T>(result: ParseResult<T>): ParseResult<T> & { telemetry: TelemetrySnapshot } {
+export function annotateWithTelemetry<T>(
+  result: ParseResult<T>,
+): ParseResult<T> & { telemetry: TelemetrySnapshot } {
   return { ...result, telemetry: repairTelemetry.snapshot() };
 }

@@ -19,20 +19,14 @@ export const latexEscapeFixer: RepairStrategy = {
   repair(context: RepairContext): RepairResult | null {
     let changed = false;
 
-    const fixed = context.currentText.replace(
-      /"([^"\\]*(?:\\.[^"\\]*)*)"/g,
-      (_match, content) => {
-        const fixedContent = content.replace(
-          /\\([a-zA-Z])/g,
-          (_m: string, ch: string) => {
-            if (JSON_ESCAPE_CHARS.has(ch)) return `\\${ch}`;
-            changed = true;
-            return `\\\\${ch}`;
-          },
-        );
-        return `"${fixedContent}"`;
-      },
-    );
+    const fixed = context.currentText.replace(/"([^"\\]*(?:\\.[^"\\]*)*)"/g, (_match, content) => {
+      const fixedContent = content.replace(/\\([a-zA-Z])/g, (_m: string, ch: string) => {
+        if (JSON_ESCAPE_CHARS.has(ch)) return `\\${ch}`;
+        changed = true;
+        return `\\\\${ch}`;
+      });
+      return `"${fixedContent}"`;
+    });
 
     if (!changed) return null;
 

@@ -107,9 +107,7 @@ export function buildInitialState(
  * Trim and compress message history when it grows too large.
  * Uses conversation summarization to keep context manageable.
  */
-export function maybeCompressHistory(
-  messages: MessageLike[],
-): MessageLike[] {
+export function maybeCompressHistory(messages: MessageLike[]): MessageLike[] {
   if (messages.length <= COMPRESSION_TARGET) {
     return messages;
   }

@@ -79,10 +79,7 @@ export async function regenerateScene(
   return { success: sceneId !== null, sceneId };
 }
 
-export function removeSceneOutline(
-  session: GenerationSession,
-  index: number,
-): boolean {
+export function removeSceneOutline(session: GenerationSession, index: number): boolean {
   const outlines = session.sceneOutlines;
   if (!outlines || index < 0 || index >= outlines.length) {
     return false;
@@ -122,8 +119,13 @@ export function reorderScenes(
   toIndex: number,
 ): boolean {
   const outlines = session.sceneOutlines;
-  if (!outlines || fromIndex < 0 || fromIndex >= outlines.length
-      || toIndex < 0 || toIndex >= outlines.length) {
+  if (
+    !outlines ||
+    fromIndex < 0 ||
+    fromIndex >= outlines.length ||
+    toIndex < 0 ||
+    toIndex >= outlines.length
+  ) {
     return false;
   }
 

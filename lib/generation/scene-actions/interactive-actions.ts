@@ -5,7 +5,11 @@
  */
 
 import { nanoid } from 'nanoid';
-import type { SceneOutline, GeneratedInteractiveContent, GeneratedPBLContent } from '@/lib/types/generation';
+import type {
+  SceneOutline,
+  GeneratedInteractiveContent,
+  GeneratedPBLContent,
+} from '@/lib/types/generation';
 import type {
   Action,
   SpeechAction,

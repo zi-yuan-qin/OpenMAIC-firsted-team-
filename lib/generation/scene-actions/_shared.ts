@@ -10,7 +10,11 @@ import type { AgentInfo } from '../pipeline-types';
 import { createLogger } from '@/lib/logger';
 const log = createLogger('Generation');
 
-export function processActions(actions: Action[], elements: PPTElement[], agents?: AgentInfo[]): Action[] {
+export function processActions(
+  actions: Action[],
+  elements: PPTElement[],
+  agents?: AgentInfo[],
+): Action[] {
   const elementIds = new Set(elements.map((el) => el.id));
   const agentIds = new Set(agents?.map((a) => a.id) || []);
   const studentAgents = agents?.filter((a) => a.role === 'student') || [];

@@ -37,7 +37,10 @@ function formatElementsForPrompt(elements: PPTElement[]): string {
     .join('\n');
 }
 
-export function generateDefaultSlideActions(outline: SceneOutline, elements: PPTElement[]): Action[] {
+export function generateDefaultSlideActions(
+  outline: SceneOutline,
+  elements: PPTElement[],
+): Action[] {
   const actions: Action[] = [];
 
   const textElements = elements.filter((el) => el.type === 'text');

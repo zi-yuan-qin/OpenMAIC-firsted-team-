@@ -85,10 +85,7 @@ export function tryParseJson<T>(jsonStr: string): T | null {
  * Parse + validate against a Zod schema.
  * Returns the full ParseResult with zodErrors on schema mismatch.
  */
-export function parseWithSchema<T>(
-  response: string,
-  schema: ZodSchema<T>,
-): ZodParseResult<T> {
+export function parseWithSchema<T>(response: string, schema: ZodSchema<T>): ZodParseResult<T> {
   const pipeline = new RepairPipeline({ schema });
   return pipeline.parseWithZod<T>(response);
 }
@@ -96,10 +93,7 @@ export function parseWithSchema<T>(
 /**
  * Parse with schema using the global pipeline.
  */
-export function parseJsonResponseWithSchema<T>(
-  response: string,
-  schema: ZodSchema<T>,
-): T | null {
+export function parseJsonResponseWithSchema<T>(response: string, schema: ZodSchema<T>): T | null {
   const result = parseWithSchema<T>(response, schema);
   if (result.success && result.data !== undefined) {
     return result.data;
@@ -145,7 +139,9 @@ export type { TelemetrySnapshot, StrategyStats } from './repair-telemetry';
 /**
  * Parse and annotate with telemetry snapshot for debugging.
  */
-export function parseWithTelemetry<T>(response: string): ParseResult<T> & { telemetry: import('./repair-telemetry').TelemetrySnapshot } {
+export function parseWithTelemetry<T>(
+  response: string,
+): ParseResult<T> & { telemetry: import('./repair-telemetry').TelemetrySnapshot } {
   const result = getPipeline().parse<T>(response);
   return annotateWithTelemetry(result);
 }

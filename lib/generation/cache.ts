@@ -30,7 +30,13 @@ function orderedStringify(value: unknown): string {
     return '[' + value.map(orderedStringify).join(',') + ']';
   }
   const keys = Object.keys(value as object).sort();
-  return '{' + keys.map((k) => JSON.stringify(k) + ':' + orderedStringify((value as Record<string, unknown>)[k])).join(',') + '}';
+  return (
+    '{' +
+    keys
+      .map((k) => JSON.stringify(k) + ':' + orderedStringify((value as Record<string, unknown>)[k]))
+      .join(',') +
+    '}'
+  );
 }
 
 function hashInput(input: unknown): string {
@@ -71,8 +77,7 @@ export class GenerationCache {
 
   set<T>(key: string, value: T): void {
     if (this.store.size >= this.maxSize) {
-      const oldest = [...this.store.entries()]
-        .sort((a, b) => a[1].timestamp - b[1].timestamp)[0];
+      const oldest = [...this.store.entries()].sort((a, b) => a[1].timestamp - b[1].timestamp)[0];
       if (oldest) this.store.delete(oldest[0]);
     }
     this.store.set(key, {

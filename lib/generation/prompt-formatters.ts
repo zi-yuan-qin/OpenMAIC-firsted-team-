@@ -43,11 +43,14 @@ export const DEFAULT_PROMPT_TEMPLATES: Required<PromptTemplateConfig> = {
   currentPageMarker: ' ← current',
   sameSessionWarning:
     'IMPORTANT: All pages belong to the SAME class session. Do NOT greet again after the first page. When referencing content from earlier pages, say "we just covered" or "as mentioned on page N" — NEVER say "last class" or "previous session" because there is no previous session.',
-  firstPageInstruction: 'Position: This is the FIRST page. Open with a greeting and course introduction.',
-  lastPageInstruction: 'Position: This is the LAST page. Conclude the course with a summary and closing.',
+  firstPageInstruction:
+    'Position: This is the FIRST page. Open with a greeting and course introduction.',
+  lastPageInstruction:
+    'Position: This is the LAST page. Conclude the course with a summary and closing.',
   middlePageInstruction: (page, total) =>
     `Position: Page ${page} of ${total} (middle of the course).`,
-  transitionNote: 'Transition: Continue naturally from the previous page. Do NOT greet or re-introduce.',
+  transitionNote:
+    'Transition: Continue naturally from the previous page. Do NOT greet or re-introduce.',
   previousSpeechHeader: 'Previous page speech (for transition reference):',
   agentsHeader: 'Classroom Agents:',
   teacherPersonaInstruction: (name) =>
@@ -111,10 +114,7 @@ export function buildCourseContext(
   return lines.join('\n');
 }
 
-export function formatAgentsForPrompt(
-  agents?: AgentInfo[],
-  config?: PromptTemplateConfig,
-): string {
+export function formatAgentsForPrompt(agents?: AgentInfo[], config?: PromptTemplateConfig): string {
   if (!agents || agents.length === 0) return '';
 
   const lines = [t(config, 'agentsHeader')];
@@ -138,10 +138,7 @@ export function formatTeacherPersonaForPrompt(
   return fn(teacher.name);
 }
 
-export function formatImageDescription(
-  img: PdfImage,
-  config?: PromptTemplateConfig,
-): string {
+export function formatImageDescription(img: PdfImage, config?: PromptTemplateConfig): string {
   const sep = t(config, 'imageLabelSeparator');
   let dimInfo = '';
   if (img.width && img.height) {
@@ -152,10 +149,7 @@ export function formatImageDescription(
   return `- **${img.id}**: ${t(config, 'imagePdfSourceLabel')}${img.pageNumber}${dimInfo}${desc}`;
 }
 
-export function formatImagePlaceholder(
-  img: PdfImage,
-  config?: PromptTemplateConfig,
-): string {
+export function formatImagePlaceholder(img: PdfImage, config?: PromptTemplateConfig): string {
   const sep = t(config, 'imageLabelSeparator');
   let dimInfo = '';
   if (img.width && img.height) {
@@ -211,6 +205,9 @@ export function buildLanguageText(directive?: string, sceneNote?: string): strin
 }
 
 /** Convenience: get the configured default strings for use outside formatters */
-export function getPromptTemplate(key: keyof PromptTemplateConfig, config?: PromptTemplateConfig): string {
+export function getPromptTemplate(
+  key: keyof PromptTemplateConfig,
+  config?: PromptTemplateConfig,
+): string {
   return String(t(config, key));
 }

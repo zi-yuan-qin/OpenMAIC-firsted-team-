@@ -19,16 +19,13 @@ export const invalidEscapeFixer: RepairStrategy = {
   repair(context: RepairContext): RepairResult | null {
     let changed = false;
 
-    const fixed = context.currentText.replace(
-      /\\([^"\\\/bfnrtu\n\r])/g,
-      (match, char) => {
-        if (/[a-zA-Z]/.test(char)) {
-          changed = true;
-          return '\\\\' + char;
-        }
-        return match;
-      },
-    );
+    const fixed = context.currentText.replace(/\\([^"\\\/bfnrtu\n\r])/g, (match, char) => {
+      if (/[a-zA-Z]/.test(char)) {
+        changed = true;
+        return '\\\\' + char;
+      }
+      return match;
+    });
 
     if (!changed) return null;
 

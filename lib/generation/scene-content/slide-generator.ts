@@ -6,7 +6,12 @@
 
 import { nanoid } from 'nanoid';
 import { MAX_VISION_IMAGES } from '@/lib/constants/generation';
-import type { SceneOutline, PdfImage, ImageMapping, GeneratedSlideContent } from '@/lib/types/generation';
+import type {
+  SceneOutline,
+  PdfImage,
+  ImageMapping,
+  GeneratedSlideContent,
+} from '@/lib/types/generation';
 import type { PPTElement, SlideBackground } from '@/lib/types/slides';
 import type { AgentInfo, GeneratedSlideData, AICallFn } from '../pipeline-types';
 import { buildPrompt, PROMPT_IDS } from '@/lib/prompts';
@@ -86,7 +91,10 @@ export async function generateSlideContent(
 
     if (mediaParts.length > 0) {
       const mediaText = mediaParts.join('\n\n');
-      if (assignedImagesText.includes('Do not insert') || assignedImagesText.includes('No images')) {
+      if (
+        assignedImagesText.includes('Do not insert') ||
+        assignedImagesText.includes('No images')
+      ) {
         assignedImagesText = mediaText;
       } else {
         assignedImagesText += `\n\n${mediaText}`;

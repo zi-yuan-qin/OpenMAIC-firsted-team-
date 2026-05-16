@@ -37,13 +37,19 @@ import { createLogger } from '@/lib/logger';
 // Content generators
 import { generateSlideContent } from './scene-content/slide-generator';
 import { generateQuizContent } from './scene-content/quiz-generator';
-import { generateWidgetContent, convertInteractiveConfigToWidget } from './scene-content/interactive-generator';
+import {
+  generateWidgetContent,
+  convertInteractiveConfigToWidget,
+} from './scene-content/interactive-generator';
 import { generatePBLSceneContent } from './scene-content/pbl-generator';
 
 // Action generators
 import { generateSlideActions } from './scene-actions/slide-actions';
 import { generateQuizActions } from './scene-actions/quiz-actions';
-import { generateInteractiveActions, generatePBLActions } from './scene-actions/interactive-actions';
+import {
+  generateInteractiveActions,
+  generatePBLActions,
+} from './scene-actions/interactive-actions';
 
 // Shared action processing
 import { processActions } from './scene-actions/_shared';
@@ -162,9 +168,14 @@ export async function generateSingleScene(
   generationCache.set(`${cacheKey}:content`, content);
 
   // Quality scoring
-  const score = scoreContent({ type: outline.type as 'slide' | 'quiz' | 'interactive' | 'pbl', content } as Parameters<typeof scoreContent>[0]);
+  const score = scoreContent({
+    type: outline.type as 'slide' | 'quiz' | 'interactive' | 'pbl',
+    content,
+  } as Parameters<typeof scoreContent>[0]);
   if (!isAcceptable(score)) {
-    log.warn(`Low quality score for "${outline.title}": overall=${score.overall.toFixed(2)} issues=${score.issues.join('; ')}`);
+    log.warn(
+      `Low quality score for "${outline.title}": overall=${score.overall.toFixed(2)} issues=${score.issues.join('; ')}`,
+    );
   } else {
     log.info(`Quality score for "${outline.title}": overall=${score.overall.toFixed(2)}`);
   }
@@ -267,7 +278,12 @@ export async function generateSceneActions(
   }
 
   if (outline.type === 'slide' && 'elements' in content) {
-    return generateSlideActions(outline, content, aiCall, { ctx, agents, userProfile, languageDirective });
+    return generateSlideActions(outline, content, aiCall, {
+      ctx,
+      agents,
+      userProfile,
+      languageDirective,
+    });
   }
 
   if (outline.type === 'quiz' && 'questions' in content) {

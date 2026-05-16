@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { fixElementDefaults, processLatexElements } from '@/lib/generation/element-fixer';
-import type { JsonValue } from 'type-fest';
 
-type Element = Record<string, JsonValue>;
+type Element = Record<string, unknown>;
 
 describe('fixElementDefaults', () => {
   it('fills missing line element defaults', () => {
@@ -16,7 +15,7 @@ describe('fixElementDefaults', () => {
         height: 150,
       } as unknown as Element,
     ];
-    // @ts-expect-error — partial element shapes
+    // @ts-expect-error — partial mock element — partial element shapes
     const fixed = fixElementDefaults(elements);
     const line = fixed[0] as Element;
 
@@ -43,7 +42,7 @@ describe('fixElementDefaults', () => {
         color: '#ff0000',
       } as unknown as Element,
     ];
-    // @ts-expect-error
+    // @ts-expect-error — partial mock element
     const fixed = fixElementDefaults(elements);
     const line = fixed[0] as Element;
 
@@ -58,7 +57,7 @@ describe('fixElementDefaults', () => {
     const elements: Element[] = [
       { type: 'text', id: 't1', left: 0, top: 0, width: 100, height: 50 } as Element,
     ];
-    // @ts-expect-error
+    // @ts-expect-error — partial mock element
     const fixed = fixElementDefaults(elements);
     const text = fixed[0] as Element;
 
@@ -71,7 +70,7 @@ describe('fixElementDefaults', () => {
     const elements: Element[] = [
       { type: 'shape', id: 's1', left: 50, top: 50, width: 200, height: 200 } as Element,
     ];
-    // @ts-expect-error
+    // @ts-expect-error — partial mock element
     const fixed = fixElementDefaults(elements);
     const shape = fixed[0] as Element;
 
@@ -84,7 +83,7 @@ describe('fixElementDefaults', () => {
     const elements: Element[] = [
       { type: 'image', id: 'img1', left: 0, top: 0, width: 400, height: 300 } as Element,
     ];
-    // @ts-expect-error
+    // @ts-expect-error — partial mock element
     const fixed = fixElementDefaults(elements);
     const img = fixed[0] as Element;
 
@@ -114,7 +113,7 @@ describe('fixElementDefaults', () => {
       },
     ];
 
-    // @ts-expect-error
+    // @ts-expect-error — partial mock element
     const fixed = fixElementDefaults(elements, images);
     const img = fixed[0] as Element;
 
@@ -124,17 +123,14 @@ describe('fixElementDefaults', () => {
   });
 
   it('does not modify non-defaultable element types', () => {
-    const elements: Element[] = [
-      { type: 'chart', id: 'c1', chartType: 'bar' } as Element,
-    ];
-    // @ts-expect-error
+    const elements: Element[] = [{ type: 'chart', id: 'c1', chartType: 'bar' } as Element];
+    // @ts-expect-error — partial mock element
     const fixed = fixElementDefaults(elements);
 
     expect(fixed[0]).toEqual(elements[0]);
   });
 
   it('handles empty elements array', () => {
-    // @ts-expect-error
     const fixed = fixElementDefaults([]);
     expect(fixed).toEqual([]);
   });
@@ -153,7 +149,7 @@ describe('processLatexElements', () => {
         height: 40,
       } as unknown as Element,
     ];
-    // @ts-expect-error
+    // @ts-expect-error — partial mock element
     const processed = processLatexElements(elements);
     const result = processed[0] as Element;
 
@@ -165,20 +161,16 @@ describe('processLatexElements', () => {
   });
 
   it('removes latex element with empty latex string', () => {
-    const elements: Element[] = [
-      { type: 'latex', id: 'empty_latex', latex: '' } as Element,
-    ];
-    // @ts-expect-error
+    const elements: Element[] = [{ type: 'latex', id: 'empty_latex', latex: '' } as Element];
+    // @ts-expect-error — partial mock element
     const processed = processLatexElements(elements);
 
     expect(processed).toHaveLength(0);
   });
 
   it('removes latex element with missing latex field', () => {
-    const elements: Element[] = [
-      { type: 'latex', id: 'missing_latex' } as Element,
-    ];
-    // @ts-expect-error
+    const elements: Element[] = [{ type: 'latex', id: 'missing_latex' } as Element];
+    // @ts-expect-error — partial mock element
     const processed = processLatexElements(elements);
 
     expect(processed).toHaveLength(0);
@@ -193,7 +185,7 @@ describe('processLatexElements', () => {
         latex: '\\invalid{',
       } as unknown as Element,
     ];
-    // @ts-expect-error
+    // @ts-expect-error — partial mock element
     const processed = processLatexElements(elements);
 
     // With throwOnError: false, katex returns error span HTML rather than throwing
@@ -202,10 +194,18 @@ describe('processLatexElements', () => {
 
   it('passes through non-latex elements unchanged', () => {
     const elements: Element[] = [
-      { type: 'text', id: 't1', left: 10, top: 10, content: 'hello', width: 100, height: 30 } as Element,
+      {
+        type: 'text',
+        id: 't1',
+        left: 10,
+        top: 10,
+        content: 'hello',
+        width: 100,
+        height: 30,
+      } as Element,
       { type: 'shape', id: 's1', fill: '#000', width: 50, height: 50 } as Element,
     ];
-    // @ts-expect-error
+    // @ts-expect-error — partial mock element
     const processed = processLatexElements(elements);
 
     expect(processed).toHaveLength(2);
@@ -214,7 +214,6 @@ describe('processLatexElements', () => {
   });
 
   it('handles empty array', () => {
-    // @ts-expect-error
     expect(processLatexElements([])).toEqual([]);
   });
 });

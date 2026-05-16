@@ -53,8 +53,7 @@ describe('extraction strategies', () => {
     });
 
     it('extracts outermost balanced JSON structure', () => {
-      const raw =
-        'Output: {"outer": {"inner": [1, {"deep": true}]}, "done": true}.';
+      const raw = 'Output: {"outer": {"inner": [1, {"deep": true}]}, "done": true}.';
       const result = jsonWindowExtractor.extract(raw);
       // jsonWindowExtractor now returns only the outermost balanced structure
       expect(result).toHaveLength(1);
@@ -249,9 +248,7 @@ describe('RepairPipeline', () => {
     });
 
     it('extractionStrategy is recorded on success', () => {
-      const result = pipeline.parse<{ x: number }>(
-        '```json\n{"x": 1}\n```',
-      );
+      const result = pipeline.parse<{ x: number }>('```json\n{"x": 1}\n```');
       expect(result.success).toBe(true);
       expect(result).toHaveProperty('extractionStrategy');
     });
@@ -275,17 +272,13 @@ describe('RepairPipeline', () => {
       // This JSON is technically valid, so the custom strategy won't fire
       // because JSON.parse succeeds directly without needing repair.
       // Use input that triggers repair: malformed
-      const result = pipeline.parse<{ value: number }>(
-        '{"value":BAD_TOKEN}',
-      );
+      const result = pipeline.parse<{ value: number }>('{"value":BAD_TOKEN}');
       expect(result.success).toBe(true);
       expect(result.data?.value).toBe(42);
       expect(result.repairChain).toContain('custom-marker-fixer');
 
       pipeline.removeStrategy('custom-marker-fixer');
-      const result2 = pipeline.parse<{ value: number }>(
-        '{"value":BAD_TOKEN}',
-      );
+      const result2 = pipeline.parse<{ value: number }>('{"value":BAD_TOKEN}');
       // Without the fixer, it might still be repaired by other strategies
       // or fail entirely. The key is the strategy was removed.
       expect(result2.repairChain).not.toContain('custom-marker-fixer');
