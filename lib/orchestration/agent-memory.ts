@@ -23,19 +23,16 @@ export interface AgentMemory {
  * Extract agent memory from the agent response history.
  * Keeps only the most recent turns for the specified agent.
  */
-export function getAgentMemory(
-  agentResponses: AgentTurnSummary[],
-  agentId: string,
-): AgentMemory {
-  const agentTurns = agentResponses.filter(r => r.agentId === agentId);
-  const recentTurns = agentTurns.slice(-AGENT_MEMORY_TURNS).map(turn => ({
+export function getAgentMemory(agentResponses: AgentTurnSummary[], agentId: string): AgentMemory {
+  const agentTurns = agentResponses.filter((r) => r.agentId === agentId);
+  const recentTurns = agentTurns.slice(-AGENT_MEMORY_TURNS).map((turn) => ({
     contentPreview: turn.contentPreview,
-    actionNames: turn.whiteboardActions?.map(a => a.actionName) ?? [],
+    actionNames: turn.whiteboardActions?.map((a) => a.actionName) ?? [],
   }));
 
   // Extract key facts from content previews (simple heuristic: first sentence)
   const keyFacts = agentTurns
-    .map(turn => turn.contentPreview.split(/[.!?]/)[0]?.trim())
+    .map((turn) => turn.contentPreview.split(/[.!?]/)[0]?.trim())
     .filter(Boolean)
     .slice(-AGENT_MEMORY_TURNS);
 
