@@ -15,6 +15,7 @@ export interface AgentConfig {
   allowedActions: string[]; // Action types this agent can use
   priority: number; // Priority for director selection (1-10)
   voiceConfig?: { providerId: TTSProviderId; modelId?: string; voiceId: string }; // Per-agent TTS voice selection
+  personaType?: string; // Student persona archetype: "curious", "analytical", "creative", "note-taker"
 
   // Metadata
   createdAt: Date;
