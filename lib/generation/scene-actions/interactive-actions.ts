@@ -166,7 +166,7 @@ export async function generateInteractiveActions(
   // Normal interactive mode
   const config = outline.interactiveConfig;
   const agentsText = formatAgentsForPrompt(agents);
-  const prompts = buildPrompt(PROMPT_IDS.INTERACTIVE_ACTIONS, {
+  const prompts = buildPrompt(PROMPT_IDS.INTERACTIVE_ACTIONS_V2, {
     title: outline.title,
     keyPoints: (outline.keyPoints || []).map((p, i) => `${i + 1}. ${p}`).join('\n'),
     description: outline.description,
@@ -204,7 +204,7 @@ export async function generatePBLActions(
   const { ctx, agents, languageDirective } = options;
   const pblConfig = outline.pblConfig;
   const agentsText = formatAgentsForPrompt(agents);
-  const prompts = buildPrompt(PROMPT_IDS.PBL_ACTIONS, {
+  const prompts = buildPrompt(PROMPT_IDS.PBL_ACTIONS_V2, {
     title: outline.title,
     keyPoints: (outline.keyPoints || []).map((p, i) => `${i + 1}. ${p}`).join('\n'),
     description: outline.description,

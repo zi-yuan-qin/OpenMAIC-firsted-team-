@@ -107,7 +107,7 @@ export async function generateSlideContent(
 
   const teacherContext = formatTeacherPersonaForPrompt(agents);
 
-  const prompts = buildPrompt(PROMPT_IDS.SLIDE_CONTENT, {
+  const prompts = buildPrompt(PROMPT_IDS.SLIDE_CONTENT_V2, {
     title: outline.title,
     description: outline.description,
     keyPoints: (outline.keyPoints || []).map((p, i) => `${i + 1}. ${p}`).join('\n'),

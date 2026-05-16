@@ -191,7 +191,7 @@ async function generateWidgetTeacherActions(
   aiCall: AICallFn,
   languageDirective?: string,
 ): Promise<TeacherAction[] | undefined> {
-  const prompts = buildPrompt(PROMPT_IDS.WIDGET_TEACHER_ACTIONS, {
+  const prompts = buildPrompt(PROMPT_IDS.WIDGET_TEACHER_ACTIONS_V2, {
     widgetType,
     description: outline.description,
     keyPoints: (outline.keyPoints || []).join('\n'),
