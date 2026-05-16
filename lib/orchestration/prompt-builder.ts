@@ -128,7 +128,10 @@ export function buildStructuredPrompt(
   whiteboardLedger?: WhiteboardActionRecord[],
   userProfile?: { nickname?: string; bio?: string },
   agentResponses?: AgentTurnSummary[],
-  memory?: { recentTurns: Array<{ contentPreview: string; actionNames: string[] }>; keyFacts: string[] },
+  memory?: {
+    recentTurns: Array<{ contentPreview: string; actionNames: string[] }>;
+    keyFacts: string[];
+  },
 ): string {
   // Determine current scene type for action filtering
   const currentScene = storeState.currentSceneId

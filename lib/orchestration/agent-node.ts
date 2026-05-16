@@ -16,11 +16,7 @@ import { getEffectiveActions } from './tool-schemas';
 import { convertMessagesToOpenAI } from './summarizers/message-converter';
 import { parseStructuredChunk, createParserState, finalizeParser } from './stateless-generate';
 import type { AgentTurnSummary, WhiteboardActionRecord } from './types';
-import {
-  CONTENT_PREVIEW_MAX_LENGTH,
-  EMPTY_HISTORY_PROMPT,
-  AGENT_TURN_PROMPT,
-} from './config';
+import { CONTENT_PREVIEW_MAX_LENGTH, EMPTY_HISTORY_PROMPT, AGENT_TURN_PROMPT } from './config';
 import { createLogger } from '@/lib/logger';
 import { getAgentMemory } from './agent-memory';
 

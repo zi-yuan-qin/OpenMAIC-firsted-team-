@@ -1087,10 +1087,7 @@ function buildGoogleProxyFetch(proxyUrl: string): typeof fetch {
         /* webpackIgnore: true */ 'undici'
       )) as {
         ProxyAgent: new (proxyUrl: string) => unknown;
-        fetch: (
-          input: string | URL | Request,
-          init?: Record<string, unknown>,
-        ) => Promise<unknown>;
+        fetch: (input: string | URL | Request, init?: Record<string, unknown>) => Promise<unknown>;
       };
       agent ??= new ProxyAgent(proxyUrl);
       const response = await undiciFetch(input, {

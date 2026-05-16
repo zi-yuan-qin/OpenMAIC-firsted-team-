@@ -136,10 +136,7 @@ export function rateLimitResponse(result: RateLimitResult): NextResponse {
 /**
  * Add rate limit headers to an existing response.
  */
-export function addRateLimitHeaders(
-  response: NextResponse,
-  result: RateLimitResult,
-): void {
+export function addRateLimitHeaders(response: NextResponse, result: RateLimitResult): void {
   response.headers.set('X-RateLimit-Limit', String(result.limit));
   response.headers.set('X-RateLimit-Remaining', String(result.remaining));
   response.headers.set('X-RateLimit-Reset', String(result.resetAt));
