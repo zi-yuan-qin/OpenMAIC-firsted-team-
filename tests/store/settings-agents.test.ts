@@ -100,7 +100,7 @@ describe('useAgentRegistry — 代理注册表', () => {
   it('初始化时返回 6 个默认代理', async () => {
     const store = await getAgentStore();
     const agents = store.getState().listAgents();
-    expect(Object.keys(agents)).toHaveLength(6);
+    expect(agents).toHaveLength(6);
   });
 
   it('添加自定义代理', async () => {
@@ -148,17 +148,19 @@ describe('useAgentRegistry — 代理注册表', () => {
       id: 'temp-agent',
       name: '临时代理',
       role: 'student',
-      personality: '',
+      persona: '',
       color: '#000',
       avatar: '',
-      isBuiltIn: false,
+      isDefault: false,
       priority: 5,
-      permissions: [],
+      allowedActions: [],
+      createdAt: new Date(),
+      updatedAt: new Date(),
     });
-    expect(Object.keys(store.getState().listAgents())).toHaveLength(7);
+    expect(store.getState().listAgents()).toHaveLength(7);
 
     store.getState().deleteAgent('temp-agent');
-    expect(Object.keys(store.getState().listAgents())).toHaveLength(6);
+    expect(store.getState().listAgents()).toHaveLength(6);
   });
 
   it('删除不存在的代理不报错', async () => {

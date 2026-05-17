@@ -47,7 +47,7 @@ describe('migration — 数据格式升级', () => {
     const store = await getStore();
 
     // deepResearchProviderId 应该不存在（v2 迁移会删除）
-    const state = store.getState() as Record<string, unknown>;
+    const state = store.getState() as unknown as Record<string, unknown>;
     expect(state.deepResearchProviderId).toBeUndefined();
     // webSearchProviderId 应该被设为默认值 'tavily'
     expect(state.webSearchProviderId).toBe('tavily');

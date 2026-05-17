@@ -24,10 +24,10 @@ describe('settings-media — 媒体设置', () => {
   describe('setImageProvider', () => {
     it('切换图片引擎时，modelId 重置为该引擎的第一个模型', async () => {
       const store = await getStore();
-      store.getState().setImageProvider('openai');
+      store.getState().setImageProvider('openai-image');
 
       const state = store.getState();
-      expect(state.imageProviderId).toBe('openai');
+      expect(state.imageProviderId).toBe('openai-image');
       expect(state.imageModelId).toBe('dall-e-3'); // openai 的第一个模型
     });
   });
@@ -35,10 +35,10 @@ describe('settings-media — 媒体设置', () => {
   describe('setImageModelId', () => {
     it('仅变更模型 ID，不影响 engine', async () => {
       const store = await getStore();
-      store.getState().setImageProvider('openai');
+      store.getState().setImageProvider('openai-image');
       store.getState().setImageModelId('dall-e-3');
 
-      expect(store.getState().imageProviderId).toBe('openai');
+      expect(store.getState().imageProviderId).toBe('openai-image');
       expect(store.getState().imageModelId).toBe('dall-e-3');
     });
   });
@@ -71,7 +71,7 @@ describe('settings-media — 媒体设置', () => {
     it('设置 API Key 后可以开启', async () => {
       const store = await getStore();
       // 先给 openai 配 API Key
-      store.getState().setImageProviderConfig('openai', { apiKey: 'sk-test' });
+      store.getState().setImageProviderConfig('openai-image', { apiKey: 'sk-test' });
       store.getState().setImageGenerationEnabled(true);
 
       expect(store.getState().imageGenerationEnabled).toBe(true);
