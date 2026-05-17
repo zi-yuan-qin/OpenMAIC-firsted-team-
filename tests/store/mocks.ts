@@ -150,8 +150,8 @@ export function setupStoreMocks() {
   // --- 图片生成 ---
   vi.mock('@/lib/media/image-providers', () => ({
     IMAGE_PROVIDERS: {
-      openai: {
-        id: 'openai',
+      'openai-image': {
+        id: 'openai-image',
         name: 'OpenAI',
         models: [{ id: 'dall-e-3', name: 'DALL-E 3' }],
       },
