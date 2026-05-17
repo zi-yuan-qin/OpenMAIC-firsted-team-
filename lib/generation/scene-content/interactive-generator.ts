@@ -191,7 +191,7 @@ async function generateWidgetTeacherActions(
   aiCall: AICallFn,
   languageDirective?: string,
 ): Promise<TeacherAction[] | undefined> {
-  const prompts = buildPrompt(PROMPT_IDS.WIDGET_TEACHER_ACTIONS, {
+  const prompts = buildPrompt(PROMPT_IDS.WIDGET_TEACHER_ACTIONS_V2, {
     widgetType,
     description: outline.description,
     keyPoints: (outline.keyPoints || []).join('\n'),
@@ -228,7 +228,7 @@ export async function generateWidgetContent(
 
   switch (widgetType) {
     case 'simulation':
-      promptId = PROMPT_IDS.SIMULATION_CONTENT;
+      promptId = PROMPT_IDS.SIMULATION_CONTENT_V2;
       variables = {
         conceptName: widgetOutline.concept || outline.title,
         conceptOverview: outline.description,
@@ -240,7 +240,7 @@ export async function generateWidgetContent(
       break;
 
     case 'diagram':
-      promptId = PROMPT_IDS.DIAGRAM_CONTENT;
+      promptId = PROMPT_IDS.DIAGRAM_CONTENT_V2;
       variables = {
         title: outline.title,
         diagramType: widgetOutline.diagramType || 'flowchart',
@@ -251,7 +251,7 @@ export async function generateWidgetContent(
       break;
 
     case 'code':
-      promptId = PROMPT_IDS.CODE_CONTENT;
+      promptId = PROMPT_IDS.CODE_CONTENT_V2;
       variables = {
         title: outline.title,
         programmingLanguage: widgetOutline.language || 'python',
@@ -265,7 +265,7 @@ export async function generateWidgetContent(
       break;
 
     case 'game':
-      promptId = PROMPT_IDS.GAME_CONTENT;
+      promptId = PROMPT_IDS.GAME_CONTENT_V2;
       variables = {
         title: outline.title,
         gameType: widgetOutline.gameType || 'quiz',
@@ -277,7 +277,7 @@ export async function generateWidgetContent(
       break;
 
     case 'visualization3d':
-      promptId = PROMPT_IDS.VISUALIZATION3D_CONTENT;
+      promptId = PROMPT_IDS.VISUALIZATION3D_CONTENT_V2;
       variables = {
         title: outline.title,
         visualizationType: widgetOutline.visualizationType || 'custom',

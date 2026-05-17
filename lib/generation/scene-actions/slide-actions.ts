@@ -82,7 +82,7 @@ export async function generateSlideActions(
 
   const elementsText = formatElementsForPrompt(content.elements);
 
-  const prompts = buildPrompt(PROMPT_IDS.SLIDE_ACTIONS, {
+  const prompts = buildPrompt(PROMPT_IDS.SLIDE_ACTIONS_V2, {
     title: outline.title,
     keyPoints: (outline.keyPoints || []).map((p, i) => `${i + 1}. ${p}`).join('\n'),
     description: outline.description,

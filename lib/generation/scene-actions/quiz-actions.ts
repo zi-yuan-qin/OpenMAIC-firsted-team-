@@ -51,7 +51,7 @@ export async function generateQuizActions(
 
   const questionsText = formatQuestionsForPrompt(content.questions);
 
-  const prompts = buildPrompt(PROMPT_IDS.QUIZ_ACTIONS, {
+  const prompts = buildPrompt(PROMPT_IDS.QUIZ_ACTIONS_V2, {
     title: outline.title,
     keyPoints: (outline.keyPoints || []).map((p, i) => `${i + 1}. ${p}`).join('\n'),
     description: outline.description,

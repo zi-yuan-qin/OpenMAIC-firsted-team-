@@ -6,6 +6,7 @@
  *   setupStoreMocks();   // 必须在 import store 之前调用（vitest 会自动 hoist vi.mock）
  */
 
+import 'fake-indexeddb/auto';
 import { vi } from 'vitest';
 
 // ================================================================

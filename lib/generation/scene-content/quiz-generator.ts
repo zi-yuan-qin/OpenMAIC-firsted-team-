@@ -61,7 +61,7 @@ export async function generateQuizContent(
     questionTypes: ['single'],
   };
 
-  const prompts = buildPrompt(PROMPT_IDS.QUIZ_CONTENT, {
+  const prompts = buildPrompt(PROMPT_IDS.QUIZ, {
     title: outline.title,
     description: outline.description,
     keyPoints: (outline.keyPoints || []).map((p, i) => `${i + 1}. ${p}`).join('\n'),

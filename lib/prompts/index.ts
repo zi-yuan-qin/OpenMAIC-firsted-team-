@@ -106,4 +106,10 @@ export const PROMPT_IDS = {
   PBL_ACTIONS_V2: 'generators/pbl-actions',
   WEB_SEARCH_QUERY_REWRITE_V2: 'generators/web-search-query-rewrite',
   AGENT_PROFILES: 'generators/agent-profiles',
+  // New modular generators — Ultra Mode widgets (Phase 4+)
+  SIMULATION_CONTENT_V2: 'generators/simulation-content',
+  DIAGRAM_CONTENT_V2: 'generators/diagram-content',
+  CODE_CONTENT_V2: 'generators/code-content',
+  GAME_CONTENT_V2: 'generators/game-content',
+  VISUALIZATION3D_CONTENT_V2: 'generators/visualization3d-content',
 } as const satisfies Record<string, PromptId>;
