@@ -15,9 +15,8 @@ import type {
   QuestionBankEntry,
   SolverAgentType,
 } from '@/lib/solve/types';
-import type { AvatarConfig, AvatarSpeech, SlideGenerationOptions, SlideGenerationResult } from '@/lib/slides/types';
+import type { AvatarConfig, AvatarSpeech, SlideGenerationOptions } from '@/lib/slides/types';
 import type { MistakeRecord, KnowledgeGraph, MistakeFilter } from '@/lib/mistakes/types';
-import type { Slide } from '@/lib/types/slides';
 import { createLogger } from '@/lib/logger';
 
 const log = createLogger('SkyClassroomStore');
@@ -47,16 +46,26 @@ const getDefaultSolveState = (): SolveState => ({
   fromQuestionBank: false,
 });
 
-type SetFn<T> = (partial: Partial<T> | ((state: T) => Partial<T>)) => void;
-
-const createSolveSlice = (set: SetFn<SolveSlice>): SolveSlice => ({
+const createSolveSlice = (set: any, get: any): SolveSlice => ({
   currentSolveState: null,
   solveHistory: [],
   isSolving: false,
-  setSolveState: (state) => set({ currentSolveState: state }),
-  addToHistory: (state) => set((s) => ({ solveHistory: [...s.solveHistory, state] })),
-  setSolving: (solving) => set({ isSolving: solving }),
-  clearSolveHistory: () => set({ solveHistory: [] }),
+  setSolveState: (state) => {
+    log.debug('Solve state updated');
+    set({ currentSolveState: state });
+  },
+  addToHistory: (state) => {
+    log.debug('Added to solve history');
+    set((s: SolveSlice) => ({ solveHistory: [...s.solveHistory, state] }));
+  },
+  setSolving: (solving) => {
+    log.debug('Solving state:', solving);
+    set({ isSolving: solving });
+  },
+  clearSolveHistory: () => {
+    log.debug('Solve history cleared');
+    set({ solveHistory: [] });
+  },
 });
 
 // ── Slides Slice ───────────────────────────────────────────────────
@@ -67,37 +76,40 @@ interface SlidesSlice {
   currentSpeech: AvatarSpeech | null;
   isGenerating: boolean;
   generationOptions: SlideGenerationOptions;
-  slides: Slide[];
-  generationResult: SlideGenerationResult | null;
-  generationError: string | null;
 
   setSelectedAvatar: (id: string) => void;
   setAvatars: (avatars: AvatarConfig[]) => void;
   setCurrentSpeech: (speech: AvatarSpeech | null) => void;
   setGenerating: (generating: boolean) => void;
   setGenerationOptions: (options: SlideGenerationOptions) => void;
-  setSlides: (slides: Slide[]) => void;
-  setGenerationResult: (result: SlideGenerationResult | null) => void;
-  setGenerationError: (error: string | null) => void;
 }
 
-const createSlidesSlice = (set: SetFn<SlidesSlice>): SlidesSlice => ({
+const createSlidesSlice = (set: any, get: any): SlidesSlice => ({
   selectedAvatarId: 'professor',
   availableAvatars: [],
   currentSpeech: null,
   isGenerating: false,
   generationOptions: { topic: '', difficulty: 'senior' },
-  slides: [],
-  generationResult: null,
-  generationError: null,
-  setSelectedAvatar: (id) => set({ selectedAvatarId: id }),
-  setAvatars: (avatars) => set({ availableAvatars: avatars }),
-  setCurrentSpeech: (speech) => set({ currentSpeech: speech }),
-  setGenerating: (generating) => set({ isGenerating: generating }),
-  setGenerationOptions: (options) => set({ generationOptions: options }),
-  setSlides: (slides) => set({ slides }),
-  setGenerationResult: (result) => set({ generationResult: result }),
-  setGenerationError: (error) => set({ generationError: error }),
+  setSelectedAvatar: (id) => {
+    log.debug('Selected avatar:', id);
+    set({ selectedAvatarId: id });
+  },
+  setAvatars: (avatars) => {
+    log.debug('Avatars set:', avatars.length);
+    set({ availableAvatars: avatars });
+  },
+  setCurrentSpeech: (speech) => {
+    log.debug('Current speech set');
+    set({ currentSpeech: speech });
+  },
+  setGenerating: (generating) => {
+    log.debug('Generating:', generating);
+    set({ isGenerating: generating });
+  },
+  setGenerationOptions: (options) => {
+    log.debug('Generation options set');
+    set({ generationOptions: options });
+  },
 });
 
 // ── Mistakes Slice ─────────────────────────────────────────────────
@@ -114,15 +126,34 @@ interface MistakesSlice {
   deleteMistake: (id: string) => void;
 }
 
-const createMistakesSlice = (set: SetFn<MistakesSlice>): MistakesSlice => ({
+const createMistakesSlice = (set: any, get: any): MistakesSlice => ({
   mistakes: [],
   knowledgeGraph: null,
   activeFilter: null,
-  addMistake: (m) => set((s) => ({ mistakes: [...s.mistakes, m] })),
-  markReviewed: (id) => set((s) => ({ mistakes: s.mistakes.map((m) => m.id === id ? { ...m, reviewed: true, reviewCount: m.reviewCount + 1 } : m) })),
-  setFilter: (filter) => set({ activeFilter: filter }),
-  setKnowledgeGraph: (graph) => set({ knowledgeGraph: graph }),
-  deleteMistake: (id) => set((s) => ({ mistakes: s.mistakes.filter((m) => m.id !== id) })),
+  addMistake: (m) => {
+    log.debug('Mistake added:', m.id);
+    set((s: MistakesSlice) => ({ mistakes: [...s.mistakes, m] }));
+  },
+  markReviewed: (id) => {
+    log.debug('Mistake reviewed:', id);
+    set((s: MistakesSlice) => ({
+      mistakes: s.mistakes.map((m) =>
+        m.id === id ? { ...m, reviewed: true, reviewCount: (m.reviewCount ?? 0) + 1 } : m,
+      ),
+    }));
+  },
+  setFilter: (filter) => {
+    log.debug('Filter set');
+    set({ activeFilter: filter });
+  },
+  setKnowledgeGraph: (graph) => {
+    log.debug('Knowledge graph set, nodes:', graph.nodes.length);
+    set({ knowledgeGraph: graph });
+  },
+  deleteMistake: (id) => {
+    log.debug('Mistake deleted:', id);
+    set((s: MistakesSlice) => ({ mistakes: s.mistakes.filter((m) => m.id !== id) }));
+  },
 });
 
 // ── Assistant Slice ────────────────────────────────────────────────
@@ -139,15 +170,27 @@ interface AssistantSlice {
   setDifficulty: (difficulty: string) => void;
 }
 
-const createAssistantSlice = (set: SetFn<AssistantSlice>): AssistantSlice => ({
+const createAssistantSlice = (set: any, get: any): AssistantSlice => ({
   isOpen: false,
   subject: '',
   style: 'detailed',
   difficulty: 'high-school',
-  toggleOpen: () => set((s) => ({ isOpen: !s.isOpen })),
-  setSubject: (subject) => set({ subject }),
-  setStyle: (style) => set({ style }),
-  setDifficulty: (difficulty) => set({ difficulty }),
+  toggleOpen: () => {
+    log.debug('Assistant toggled');
+    set((s: AssistantSlice) => ({ isOpen: !s.isOpen }));
+  },
+  setSubject: (s) => {
+    log.debug('Assistant subject:', s);
+    set({ subject: s });
+  },
+  setStyle: (s) => {
+    log.debug('Assistant style:', s);
+    set({ style: s });
+  },
+  setDifficulty: (d) => {
+    log.debug('Assistant difficulty:', d);
+    set({ difficulty: d });
+  },
 });
 
 // ── Combined Store ─────────────────────────────────────────────────
@@ -158,13 +201,13 @@ export const useSkyClassroomStore = create<SkyClassroomStore>()(
   persist(
     (set, get) => ({
       // Solve
-      ...createSolveSlice(set),
+      ...createSolveSlice(set, get),
       // Slides
-      ...createSlidesSlice(set),
+      ...createSlidesSlice(set, get),
       // Mistakes
-      ...createMistakesSlice(set),
+      ...createMistakesSlice(set, get),
       // Assistant
-      ...createAssistantSlice(set),
+      ...createAssistantSlice(set, get),
     }),
     {
       name: 'sky-classroom-storage',
